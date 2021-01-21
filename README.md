@@ -1,0 +1,1 @@
+WP Plugin for fetching buoy data via AWS
