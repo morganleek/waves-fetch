@@ -24,10 +24,12 @@
 			is_enabled BOOLEAN DEFAULT FALSE NOT NULL,
 			menu_order MEDIUMINT(9) NOT NULL,
 			data TEXT NOT NULL,
-			start_date DATETIME NOT NULL,
-			end_date DATETIME NOT NULL,
-			first_update DATETIME NOT NULL,
-			last_update DATETIME NOT NULL,
+			start_date BIGINT(8),
+			end_date BIGINT(8),
+			first_update BIGINT(8),
+			last_update BIGINT(8),
+			requires_update BOOLEAN DEFAULT FALSE NOT NULL,
+			start_after VARCHAR(1024) NOT NULL,
 		  PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
@@ -38,7 +40,19 @@
 			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
 			buoy_id MEDIUMINT(9) NOT NULL,
 			data_points VARCHAR(4096) NOT NULL,
-			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+			timestamp BIGINT(8),
+			PRIMARY KEY  (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
+		// Buoy Wave Files
+		$table_name = $wpdb->prefix . "waf_wave_files";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_id MEDIUMINT(9) NOT NULL,
+			file_date_name BIGINT(8) NOT NULL,
+			timestamp BIGINT(8),
+			requires_update BOOLEAN DEFAULT FALSE NOT NULL,
 			PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );

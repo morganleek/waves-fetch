@@ -31,6 +31,10 @@
 								'name' => 'bucket'
 							),
 							array( 
+								'label' => 'S3 Buoy Root',
+								'name' => 'buoy_root'
+							),
+							array( 
 								'label' => 'S3 Buoy CSV',
 								'name' => 'buoy_csv'
 							)
