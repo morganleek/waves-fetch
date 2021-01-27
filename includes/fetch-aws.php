@@ -197,7 +197,7 @@
 				
 				$items = array(
 					'Bucket' => $waf_s3['bucket'],
-					'MaxKeys' => 2, // 1000 // Max
+					'MaxKeys' => 1000, // 1000 // Max
 					'Prefix' => $prefix,
 					'StartAfter' => $start_after
 				);
@@ -205,17 +205,8 @@
 				if( !empty( $continuation_token ) ) {
 					$items += ['ContinuationToken' => $continuation_token];
 				}
-				// else {
-				// 	$items = array(
-				// 		'Bucket' => $waf_s3['bucket'],
-				// 		'MaxKeys' => 2, // 1000 // Max
-						
-				// 		'Prefix' => $prefix,
-				// 		'StartAfter' => $start_after
-				// 	);
-				// }
 				
-				$files = [];
+				// $files = [];
 
 				if( $s3 = waf_create_s3_connection() ) {
 					try {
@@ -287,6 +278,20 @@
 				}
 			}
 		}
+	}
+
+	// Loop buoys needing update
+	function waf_update_flagged_buoys() {
+		// Loop through buoys with requires_update and call 
+		// for $buoy_needing_update
+		//   waf_fetch_file_list( $buoy_id )
+		// endfor
+	}
+
+	// Fetch files that need updating
+	function waf_update_flagged_files( $limit = 10 ) {
+		// Loop through files with requires_update flagged
+		
 	}
 
 	//
