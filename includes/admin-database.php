@@ -29,7 +29,7 @@
 			first_update BIGINT(8),
 			last_update BIGINT(8),
 			requires_update BOOLEAN DEFAULT FALSE NOT NULL,
-			start_after VARCHAR(1024) NOT NULL,
+			start_after_id MEDIUMINT(9) NOT NULL,
 		  PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
