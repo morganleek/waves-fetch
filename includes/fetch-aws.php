@@ -65,7 +65,8 @@
 				return $body;
 			}
 			catch ( S3Exception $e ) {
-				echo "There was an error reading the file '" . $object . "'\n";
+				print "There was an error reading the file '" . $object . "'\n";
+				print $e->getResponse();
 			}
 		}
 	}
@@ -326,6 +327,7 @@
 
 		if( $wpdb->num_rows ) {
 			foreach( $need_updating as $buoy ) {
+				// Fetch file list
 				waf_fetch_file_list( $buoy->id );
 				$updated[] = $buoy->id;
 			}
@@ -341,6 +343,7 @@
 	}
 
 	function waf_fetch_wave_file( $id = 0 ) {
+		// Fetch specific file by $id or next file needing update
 		global $wpdb;
 		
 		// Options
@@ -348,6 +351,19 @@
 		if( empty( $waf_s3 ) ) {
 			// Not configured
 			return 0;
+		}
+
+		// If $id = 0 fetch next file requiring update
+		if( $id == 0 ) {
+			$next_file = $wpdb->get_row(
+				"SELECT * FROM {$wpdb->prefix}waf_wave_files
+				WHERE `requires_update` = 1
+				LIMIT 1"
+			);
+
+			if( $wpdb->num_rows > 0 ) {
+				$id = $next_file->id;
+			}
 		}
 
 		if( $id !== 0 ) {
@@ -415,39 +431,35 @@
 						"(`buoy_id`, `data_points`, `timestamp`) " .
 						"VALUES " . $values
 					);
-					print $insert_query;
 					$wpdb->query( $insert_query );
-					
 				}
 
-				// 	print $wpdb->prepare("
-				// 	INSERT INTO {$wpdb->prefix}waf_wave_data
-				// 	(`buoy_id`, `data_points`, `timestamp`)
-				// 	VALUES " . $values . "
-				// ");
-				// }
-
+				// Mark file as updated
+				$wpdb->update(
+					$wpdb->prefix . "waf_wave_files",
+					array( 'requires_update' => 0 ),
+					array( 'id' => $id ),
+					array( '%d' ),
+					array( '%d' )
+				);
 			}
-			
 		}
 	}
 
-	function waf_update_flagged_files( $limit = 10 ) {
-		// Fetch files that need updating
-		// Loop through files with requires_update flagged
-		
-	}
-
 	//
-	// Testing 
-	function waf_fetch_buoys_next_ajax_test() {
-		// waf_update_flagged_buoys();
-
-		waf_fetch_wave_file( 1 );
-		
+	// Fetch next available file
+	function waf_fetch_wave_file_ajax() {
+		waf_fetch_wave_file();
 		wp_die();
 	}
 
+	// Fetch files for buoys Ajax
+	function waf_update_flagged_buoys_ajax() {
+		waf_update_flagged_buoys();
+		wp_die();
+	}
+
+	// Fetch Buoy List Ajax
 	function waf_fetch_buoys_csv_ajax() {
 		waf_fetch_buoys_csv();
 		wp_die();
@@ -456,8 +468,11 @@
 	add_action( 'wp_ajax_waf_fetch_buoys_csv', 'waf_fetch_buoys_csv_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_buoys_csv', 'waf_fetch_buoys_csv_ajax' );
 
-	add_action( 'wp_ajax_waf_fetch_buoys_next', 'waf_fetch_buoys_next_ajax_test' );
-	add_action( 'wp_ajax_nopriv_waf_fetch_buoys_next', 'waf_fetch_buoys_next_ajax_test' );
+	add_action( 'wp_ajax_waf_update_flagged_buoys', 'waf_update_flagged_buoys_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_update_flagged_buoys', 'waf_update_flagged_buoys_ajax' );
+
+	add_action( 'wp_ajax_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
 	
 	function waf_expand_date_path( $date = '', $label = '', $root = '' ) {
 		// Format "wawaves/Torbay/text_archive/2021/01/Torbay_20210124.csv"

@@ -24,7 +24,8 @@
 							),
 							array( 
 								'label' => 'S3 Region',
-								'name' => 'region'
+								'name' => 'region',
+								'description' => 'AWS region \'Asia Pacific (Sydney) ap-southeast-2 is <strong>ap-southeast-2</strong>\''
 							),
 							array( 
 								'label' => 'S3 Bucket',
@@ -36,7 +37,8 @@
 							),
 							array( 
 								'label' => 'S3 Buoy CSV',
-								'name' => 'buoy_csv'
+								'name' => 'buoy_csv',
+								'description' => 'Full path to file \'waves/buoys.csv\''
 							)
 						);
 					?>
@@ -47,7 +49,10 @@
 								foreach( $s3_fields as $field ) {
 									print '<tr>';
 										print '<th scope="row"><label for="waf_s3[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
-										print '<td><input name="waf_s3[' . $field['name'] . ']" type="text" id="waf_s3[' . $field['name'] . ']" value="' . esc_attr( isset( $s3[$field['name']] ) ? $s3[$field['name']] : '' ) . '" class="regular-text"></td>';
+										print '<td>';
+											print '<input name="waf_s3[' . $field['name'] . ']" type="text" id="waf_s3[' . $field['name'] . ']" value="' . esc_attr( isset( $s3[$field['name']] ) ? $s3[$field['name']] : '' ) . '" class="regular-text">';
+											print isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
+										print '</td>';
 									print '</tr>';
 								}
 							?>
