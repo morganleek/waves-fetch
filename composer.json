@@ -1,7 +1,8 @@
 {
     "name": "morgan/waves-fetch",
     "require": {
-        "league/csv": "^9.6"
+        "league/csv": "^9.6",
+        "aws/aws-sdk-php": "^3.173"
     },
     "authors": [
         {

@@ -369,7 +369,7 @@
 		if( $id !== 0 ) {
 			$buoy_file = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT f.`file_date_name`, b.`label` 
+					"SELECT f.`file_date_name`, f.`buoy_id`, b.`label`
 					FROM wp_waf_wave_files AS f, wp_waf_buoys AS b 
 					WHERE f.`buoy_id` = b.`id` AND f.`id` = %d",
 					$id
@@ -377,13 +377,15 @@
 			);
 
 			if( $wpdb->num_rows > 0 ) {
+				// Buoy
+				$buoy_id = $buoy_file->buoy_id;
 				// Make into full path
 				$object = waf_expand_date_path( $buoy_file->file_date_name, $buoy_file->label, $waf_s3['buoy_root'] );
 				// Fetch CSV data
 				$wave_data_csv = waf_fetch_resource( $object );
 
 				// Heading leading spaces
-				$wave_data_csv = str_replace( ", ", ",", $wave_data_csv );
+				$wave_data_csv = str_replace( array(", ", " ," ), ",", $wave_data_csv );
 				// Repeating headings 
 				// requested this be removed from the Csvs
 				$wave_data_csv = str_replace( "blank,blank,blank", "blank1,blank2,blank3", $wave_data_csv );
@@ -396,7 +398,7 @@
 				// Put values in array by timestamp
 				$insert_rows = [];
 				foreach( $records as $k => $r ) {
-					$r['buoy_id'] = $id;
+					$r['buoy_id'] = $buoy_id;
 					$insert_rows[$r['Time (UTC)']] = $r;
 				}
 
@@ -408,7 +410,7 @@
 						FROM `{$wpdb->prefix}waf_wave_data` 
 						WHERE `buoy_id` = %d 
 						AND `timestamp` IN (" . $timestamps . ")",
-						$id
+						$buoy_id
 					)
 				);
 				
@@ -421,7 +423,7 @@
 					// Format for single insert
 					$values = "(" . implode( "), (", array_map(
 						function( $v ) {
-							return $v['buoy_id'] . ', \'' . serialize( $v ) . '\', ' . $v['Time (UTC)'];
+							return $v['buoy_id'] . ', \'' . json_encode( $v ) . '\', ' . $v['Time (UTC)'];
 						}, $insert_rows ) 
 					) . ")";
 					
@@ -465,12 +467,15 @@
 		wp_die();
 	}
 
+	// Action: waf_fetch_buoys_csv
 	add_action( 'wp_ajax_waf_fetch_buoys_csv', 'waf_fetch_buoys_csv_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_buoys_csv', 'waf_fetch_buoys_csv_ajax' );
 
+	// Action: waf_update_flagged_buoys
 	add_action( 'wp_ajax_waf_update_flagged_buoys', 'waf_update_flagged_buoys_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_update_flagged_buoys', 'waf_update_flagged_buoys_ajax' );
 
+	// Action: waf_fetch_wave_file
 	add_action( 'wp_ajax_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
 	

@@ -29,3 +29,6 @@
 
 	// Fetch Mechanism
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch.php' );
+
+	// Return 
+	require_once( WAF__PLUGIN_DIR . 'includes/ajax.php' );
