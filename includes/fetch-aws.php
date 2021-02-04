@@ -92,7 +92,9 @@
 					'start_date' => $r['start_date'],
 					'end_date' => $r['end_date'],
 					'first_update' => $r['first_updated'],
-					'last_update' => $r['last_updated']
+					'last_update' => $r['last_updated'],
+					'lat' => $r['Latitude'],
+					'lng' => $r['Longitude']
 				);
 
 				waf_update_buoy( $buoy );
@@ -119,7 +121,7 @@
 
 			// Validate fields
 			if( !array_keys_exists( 
-				array( 'id', 'label', 'type', 'is_enabled', 'menu_order', 'data', 'start_date', 'end_date', 'first_update', 'last_update' ),
+				array( 'id', 'label', 'type', 'is_enabled', 'menu_order', 'data', 'start_date', 'end_date', 'first_update', 'last_update', 'lat', 'lng' ),
 				$buoy
 			) ) {
 				return 0;
@@ -135,7 +137,7 @@
 				$wpdb->insert(
 					$wpdb->prefix . 'waf_buoys', 
 					$buoy,
-					array( '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d' )
+					array( '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s' )
 				);
 			}
 			else {
@@ -153,7 +155,7 @@
 					$wpdb->prefix . 'waf_buoys', 
 					$buoy,
 					array( 'id' => $buoy_id ),
-					array( '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d' ),
+					array( '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s' ),
 					array( '%d' )
 				);
 			}

@@ -104,8 +104,16 @@
 		}
 
 		// Check for start and end dates
+		$start = 0;
+		if( isset( $_REQUEST['start'] ) ) {
+			$start = intval( $_REQUEST['start'] );
+		}
+		$end = 0;
+		if( isset( $_REQUEST['end'] ) ) {
+			$end = intval( $_REQUEST['end'] );
+		}
 
-		print waf_rest_list_buoy_datapoints( $id );
+		print waf_rest_list_buoy_datapoints( $id, $start, $end );
 		wp_die();
 	}
 

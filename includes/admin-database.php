@@ -30,6 +30,8 @@
 			last_update BIGINT(8),
 			requires_update BOOLEAN DEFAULT FALSE NOT NULL,
 			start_after_id MEDIUMINT(9) NOT NULL,
+			lat VARCHAR(255) NOT NULL,
+			lng VARCHAR(255) NOT NULL,
 		  PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
