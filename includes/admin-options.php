@@ -44,6 +44,22 @@
 					?>
 					<table class="form-table">
 						<tbody>
+							<h2>Cron Commands</h2>
+							<p>Add the following commands to your servers cron to automate buoy fetch. You may need to adjust the path to PHP depending on your systems configuration.</p>
+							<ol>
+								<li>
+									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_buoys_csv"</code><br>
+									0,30&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks the buoys.csv for updates</em>
+								</li>
+								<li>
+									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_update_flagged_buoys"</code><br>
+									2,32&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks each buoys to see if there is new data</em>
+								</li>
+								<li>
+									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_file"</code><br>
+									*/3&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs a single buoys new/updated file</em>
+								</li>
+							</ol>
 							<h2>AWS</h2>
 							<?php
 								foreach( $s3_fields as $field ) {
