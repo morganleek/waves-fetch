@@ -2,7 +2,7 @@
 	// Compsore AWS Library
 	require_once WAF__PLUGIN_DIR . 'vendor/autoload.php';
 
-	use League\Csv\Reader;
+	use League\Csv\Writer;
 
 	// List Buoys
 	function waf_rest_list_buoys( $id = 0 ) {

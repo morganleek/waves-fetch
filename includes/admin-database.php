@@ -20,6 +20,7 @@
 		$sql = "CREATE TABLE $table_name (
 		  id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
 			label VARCHAR(1024) NOT NULL,
+			web_display_name VARCHAR(255) NOT NULL,
 			type VARCHAR(255) NOT NULL,
 			is_enabled BOOLEAN DEFAULT FALSE NOT NULL,
 			menu_order MEDIUMINT(9) NOT NULL,

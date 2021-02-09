@@ -85,6 +85,7 @@
 				$buoy = array(
 					'id' => intval( $r['buoy_id'] ),
 					'label' => $r['label'],
+					'web_display_name' => $r['web_display_name'],
 					'type' => $r['type'],
 					'is_enabled' => intval( $r['enabled'] ),
 					'menu_order' => intval( $r['order'] ),
