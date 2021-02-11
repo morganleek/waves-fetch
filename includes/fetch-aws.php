@@ -6,10 +6,22 @@
 	use Aws\S3\Exception\S3Exception;
 	use Aws\S3\S3Client;
 
-	function waf_aws_object() {
-		
+	
+	function waf_expand_date_path( $date = '', $label = '', $root = '' ) {
+		// Format "wawaves/Torbay/text_archive/2021/01/Torbay_20210124.csv"
+		if( !empty( $date ) && !empty( $label ) && !empty( $root ) ) {
+			$year = substr( $date, 0, 4 ); // Year folder
+			$month = substr( $date, 4, 2 ); // Month folder
+			return $root . '/' . $label . '/' . 'text_archive' . '/' . $year . '/' . $month . '/' . $label . '_' . $date . '.csv';
+		}
+		return '';
+	}
 
-		
+	function waf_collapse_date_path( $path = '', $label = '' ) {
+		if( !empty( $path ) && !empty( $label ) ) {
+			return substr( $path, strpos($path, $label . '_') + strlen( $label . '_' ), 8 );
+		}
+		return '';
 	}
 
 	function waf_create_s3_connection( ) {
@@ -316,6 +328,60 @@
 		}
 	}
 
+	function waf_fetch_file_list_after( $args = [] ) {
+		// Default arguments
+		$defaults = array(
+			'bucket' => '',
+			'prefix' => '', 
+			'start_after' => '', 
+			'continuation_token' => '', 
+			'files' => array(),
+			'max_keys' => 1000, 
+			'filter_pattern' => ''
+		);
+		$_args = array_merge( $defaults, $args );
+
+		// S3 object setup
+		$items = array(
+			'Bucket' => $_args['bucket'],
+			'MaxKeys' => $_args['max_keys'],
+			'Prefix' => $_args['prefix'],
+			'StartAfter' => $_args['start_after'] // Just root path if no previous files
+		);
+		// If continuing
+		if( !empty( $continuation_token ) ) {
+			$items['ContinuationToken'] = $_args['continuation_token'];
+		}
+		// S3 Request
+		if( $s3 = waf_create_s3_connection() ) {
+			try {
+				$objects = $s3->listObjectsV2( $items );
+
+				if(isset($objects['Contents'])) {
+					foreach ($objects['Contents'] as $key => $object) {
+						// If filter applied filter by it
+						if( empty( $_args['filter_pattern'] ) || strpos( $object['Key'], $_args['filter_pattern'] ) !== false ) {
+							$_args['files'][] = $object['Key'];
+						}
+					}
+
+					if( $objects['NextContinuationToken'] ) {
+						// Update start_after and continuation_token
+						$_args['start_after'] = $_args['files'][array_key_last($_args['files'])];
+						$_args['continuation_token'] = $objects['NextContinuationToken'];
+						// Fetch again
+						waf_fetch_file_list_after( $_args );
+					}
+					else {
+						return $_args['files'];
+					}
+				}
+			} catch (S3Exception $e) {
+				return $e->getMessage() . PHP_EOL;
+			}
+		}
+	}
+
 	function waf_update_flagged_buoys() {
 		// Loop through buoys with requires_update and call 
 		global $wpdb;
@@ -481,20 +547,125 @@
 	// Action: waf_fetch_wave_file
 	add_action( 'wp_ajax_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
-	
-	function waf_expand_date_path( $date = '', $label = '', $root = '' ) {
-		// Format "wawaves/Torbay/text_archive/2021/01/Torbay_20210124.csv"
-		if( !empty( $date ) && !empty( $label ) && !empty( $root ) ) {
-			$year = substr( $date, 0, 4 ); // Year folder
-			$month = substr( $date, 4, 2 ); // Month folder
-			return $root . '/' . $label . '/' . 'text_archive' . '/' . $year . '/' . $month . '/' . $label . '_' . $date . '.csv';
+
+	function waf_fetch_wave_jpgs( $id = 0 ) {
+		global $wpdb;
+		// Fetch file from bucket
+		$waf_s3 = get_option('waf_s3');
+
+		if( 
+			empty( $waf_s3['key'] ) 		|| 
+			empty( $waf_s3['secret'] ) 	|| 
+			empty( $waf_s3['region'] ) 	|| 
+			empty( $waf_s3['bucket'] ) 
+		) {
+			// Not configured
+			return 0;
 		}
-		return '';
+
+		// All buoys
+		$query = "SELECT * FROM {$wpdb->prefix}waf_buoys";
+		// Specific buoy
+		if( $id != 0 ) {
+			$query = $wpdb->prepare(
+				$query . " WHERE `id` = %d",
+				$id
+			);
+		}
+		// Get buoys
+		$buoys = $wpdb->get_results( $query );
+
+		// For each buoy fetch list
+		foreach( $buoys as $buoy ) {
+			// Get last file fetched
+			$last_fetch = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM {$wpdb->prefix}waf_wave_memplots
+					WHERE `buoy_id` = %d
+					ORDER BY `timestamp` DESC
+					LIMIT 1"
+					, $buoy->id
+				)
+			);
+			// Leave empty if there is no result 
+			$start_after = ( $wpdb->num_rows == 0 ) ? '' : $last_fetch->full_path;
+			$prefix = $waf_s3['buoy_root'] . '/' . $buoy->label . '/' . 'mem_plot' . '/';
+
+			$files = waf_fetch_file_list_after( array(
+				'bucket' => $waf_s3['bucket'],
+				'prefix' => $prefix, 
+				'start_after' => $start_after, 
+				'filter_pattern' => '.jpg'
+			) );
+			// If files exist add to database
+			if( !empty( $files ) ) {
+				// Move into easy to manage table with timestamp keys
+				$insert_rows = [];
+				foreach( $files as $file ) {
+					$insert_rows[ waf_jpg_file_to_time( $file ) ] = array( 
+						'full_path' => $file,
+						'buoy_id' => $buoy->id,
+						'timestamp' => waf_jpg_file_to_time( $file )
+					);
+				}
+
+				$timestamps = join( ", ", array_keys( $insert_rows ) );
+				$existing = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT *
+						FROM `{$wpdb->prefix}waf_wave_memplots` 
+						WHERE `buoy_id` = %d 
+						AND `timestamp` IN (" . $timestamps . ")",
+						$buoy->id
+					)
+				);
+				
+				// Remove existing elements
+				foreach( $existing as $e ) {
+					unset($insert_rows[$e->timestamp]);
+				}
+
+				// Insert
+				if( sizeof( $insert_rows ) > 0 ) {
+					// Format for single insert
+					$values = "(" . implode( "), (", array_map(
+						function( $v ) {
+							return $v['buoy_id'] . ', ' . $v['timestamp'] . ', \'' . $v['full_path'] . '\'';
+						}, $insert_rows ) 
+					) . ")";
+
+					$insert_query = $wpdb->prepare(
+						"INSERT INTO {$wpdb->prefix}waf_wave_memplots " . 
+						"(`buoy_id`, `timestamp`, `full_path`) " .
+						"VALUES " . $values
+					);
+					$wpdb->query( $insert_query );
+				}
+			}
+		}
 	}
 
-	function waf_collapse_date_path( $path = '', $label = '' ) {
-		if( !empty( $path ) && !empty( $label ) ) {
-			return substr( $path, strpos($path, $label . '_') + strlen( $label . '_' ), 8 );
+	function waf_fetch_wave_jpgs_ajax( ) {
+		print waf_fetch_wave_jpgs( );
+		die();
+	}
+
+	// Action: waf_fetch_wave_jpgs
+	add_action( 'wp_ajax_waf_fetch_wave_jpgs', 'waf_fetch_wave_jpgs_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_fetch_wave_jpgs', 'waf_fetch_wave_jpgs_ajax' );
+
+	function waf_jpg_file_to_time( $filename = '' ) {
+		if( !empty( $filename ) ) {
+			$pattern = "/MEMplot_(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})_(?<hour>\d{2})(?<minute>\d{2})UTC/";
+			$matches = [];
+			preg_match( $pattern, $filename, $matches );
+			if( waf_array_keys_exists( array( 'year', 'month', 'day', 'hour', 'minute' ), $matches ) ) {
+				return mktime( intval( $matches['hour'] ), intval( $matches['minute'] ), 0, intval( $matches['month'] ), intval( $matches['day'] ), intval( $matches['year'] ) );
+			}
 		}
-		return '';
+		return false;
+	}
+
+	function waf_array_keys_exists(array $keys, array $arr) {
+		return !array_diff_key(array_flip($keys), $arr);
 	}

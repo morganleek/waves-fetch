@@ -59,6 +59,17 @@
 			PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
+
+		// Buoy Memplot Files
+		$table_name = $wpdb->prefix . "waf_wave_memplots";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_id MEDIUMINT(9) NOT NULL,
+			timestamp BIGINT(8),
+			full_path VARCHAR(4096) NOT NULL,
+			PRIMARY KEY  (id)
+		) $charset_collate;";
+		dbDelta( $sql );
 		
 		// Update Database Version Option
 		update_option( 'waf_database_version', WAF__VERSION );
