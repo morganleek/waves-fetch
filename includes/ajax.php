@@ -168,11 +168,26 @@
 
 		$data_points = waf_rest_list_buoy_datapoints( $id, $start, $end, false );
 		if( isset( $data_points['data'] ) ) {
-			$csv_objects = [];
+			$csv_rows = [];
 			foreach( $data_points['data'] as $data ) {
-				$csv_objects[] = json_decode( $data['data_points'] );
+				$csv_rows[] = json_decode( $data['data_points'], true );
 			}
-			_d( $csv_objects );
+			if( sizeof( $csv_rows ) ) {
+				$csv_headers = array_keys( $csv_rows[0] );
+				// Load the CSV
+				$csv = Writer::createFromString();
+				// Add headers
+				$csv->insertOne( $csv_headers );
+				$csv->insertAll( $csv_rows );
+
+				// Output as CSV file
+				$filename = "buoy-" . $id . "-wave-data" . ( ( $start > 0 ) ? "-" . $start : "" ) . ( ( $end > 0 ) ? "-" . $end : "" ) . ".csv";
+				header( "Content-type: text/csv" );
+				header( "Content-Disposition: attachment; filename=" . $filename );
+				header( "Pragma: no-cache" );
+				header( "Expires: 0" );
+				print $csv->getContent();
+			}
 		}
 		
 		// $json_data = [];
