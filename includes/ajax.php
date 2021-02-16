@@ -76,7 +76,7 @@
 		$data = $wpdb->get_results( $query, 'ARRAY_A' );
 
 		// No results in that time range?
-		if( $wpdb->num_rows == 0 ) {
+		if( $wpdb->num_rows == 0 && $start == 0 && $end == 0 ) {
 			// Get most recent n data points
 			$data = $wpdb->get_results(
 				$wpdb->prepare( 
