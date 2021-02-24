@@ -9,7 +9,8 @@
 		global $wpdb;
 
 		// All buoys
-		$query = "SELECT * FROM {$wpdb->prefix}waf_buoys";
+		$query = "SELECT *, UNIX_TIMESTAMP() AS `now` 
+		FROM {$wpdb->prefix}waf_buoys";
 		// Specific buoy
 		if( $id != 0 ) {
 			$query = $wpdb->prepare(
