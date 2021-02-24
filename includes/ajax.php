@@ -52,10 +52,16 @@
 
 		// No range set
 		if( $start == 0 && $end == 0 ) {
-			$query = $wpdb->prepare( 
-				$query . " AND `timestamp` > %d",
-				date( 'U', strtotime( $default_range ) )
-			); 
+			// // Grab last 2 days results
+			// $query = $wpdb->prepare( 
+			// 	$query . " AND `timestamp` > %d",
+			// 	date( 'U', strtotime( $default_range ) )
+			// ); 
+			// Grab last 48 retults
+			$query = $wpdb->prepare(
+				$query . " ORDER BY `timestamp` DESC LIMIT %d",
+				$default_data_points
+			);
 		}
 		else {
 			// Range set
