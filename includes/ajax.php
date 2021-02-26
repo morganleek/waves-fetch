@@ -53,15 +53,15 @@
 		// No range set
 		if( $start == 0 && $end == 0 ) {
 			// // Grab last 2 days results
-			// $query = $wpdb->prepare( 
-			// 	$query . " AND `timestamp` > %d",
-			// 	date( 'U', strtotime( $default_range ) )
-			// ); 
+			$query = $wpdb->prepare( 
+				$query . " AND `timestamp` > %d",
+				date( 'U', strtotime( $default_range ) )
+			); 
 			// Grab last 48 retults
-			$query = $wpdb->prepare(
-				$query . " ORDER BY `timestamp` DESC LIMIT %d",
-				$default_data_points
-			);
+			// $query = $wpdb->prepare(
+			// 	$query . " ORDER BY `timestamp` DESC LIMIT %d",
+			// 	$default_data_points
+			// );
 		}
 		else {
 			// Range set
@@ -84,18 +84,29 @@
 
 		// No results in that time range?
 		if( $wpdb->num_rows == 0 && $start == 0 && $end == 0 ) {
-			// Get most recent n data points
-			$data = $wpdb->get_results(
-				$wpdb->prepare( 
-					"SELECT * FROM {$wpdb->prefix}waf_wave_data 
+			// Most recent timestamp
+			$recent = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT `timestamp` FROM {$wpdb->prefix}waf_wave_data 
 					WHERE `buoy_id` = %d
 					ORDER BY `timestamp` DESC
-					LIMIT %d",
-					$id, $default_data_points
-				),
-				'ARRAY_A'
+					LIMIT 1", 
+					$id
+				)
 			);
-			
+
+			if( $recent ) {
+				// Two days before most recent
+				$data = $wpdb->get_results(
+					$wpdb->prepare( 
+						"SELECT * FROM {$wpdb->prefix}waf_wave_data 
+						WHERE `buoy_id` = %d
+						AND `timestamp` > %d",
+						$id, date( 'U', strtotime( $default_range, $recent ) )
+					),
+					'ARRAY_A'
+				);
+			}
 		}
 		
 		
