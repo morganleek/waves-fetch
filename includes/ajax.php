@@ -40,7 +40,7 @@
 	// List Buoy Datapoints
 	function waf_rest_list_buoy_datapoints( $id = 0, $start = 0, $end = 0, $json = true ) {
 		global $wpdb;
-		$default_range = "-2 days";
+		$default_range = "-5 days";
 		$default_data_points = 48;
 		$has_results = false;
 
