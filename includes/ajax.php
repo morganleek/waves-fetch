@@ -19,6 +19,8 @@
 				$id
 			);
 		}
+		// Order by Menu Order
+		$query = $query . " ORDER BY `menu_order`";
 		// Get buoys
 		$buoys = $wpdb->get_results( $query );
 		// Return JSON
