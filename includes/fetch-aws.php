@@ -93,7 +93,9 @@
 			$reader = Reader::createFromString( $buoys_csv );
 			$reader->setHeaderOffset(0);
 			$records = $reader->getRecords();
+			$ids = [];
 			foreach( $records as $k => $r ) {
+				$ids[] = intval( $r['buoy_id'] );
 				$buoy = array(
 					'id' => intval( $r['buoy_id'] ),
 					'label' => $r['label'],
@@ -113,10 +115,28 @@
 				waf_update_buoy( $buoy );
 			}
 
+			// Remove buoys that no longer exist
+			waf_trim_buoys( $ids );
+
 			return 1;
 		}
 
 		return 0;
+	}
+
+	function waf_trim_buoys( $ids = array( ) ) {
+		global $wpdb;
+
+		if( !empty( $ids ) ) {
+			// Delete all buoys not in CSV
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE
+					FROM {$wpdb->prefix}waf_buoys
+					WHERE `id` NOT IN (" . implode(',', $ids) . ")"
+				)
+			);
+		}
 	}
 
 	function waf_update_buoy( $buoy = array( ) ) {
