@@ -169,6 +169,7 @@
 	add_action( 'wp_ajax_waf_rest_list_buoy_datapoints', 'waf_rest_list_buoy_datapoints_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoy_datapoints', 'waf_rest_list_buoy_datapoints_ajax' );
 
+	// Output Buoy Datapoints as CSV
 	function waf_rest_list_buoy_datapoints_csv_ajax( ) {
 		$id = 0;
 		if( isset( $_REQUEST['id'] ) ) {
@@ -226,3 +227,60 @@
 
 	add_action( 'wp_ajax_waf_rest_list_buoy_datapoints_csv', 'waf_rest_list_buoy_datapoints_csv_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoy_datapoints_csv', 'waf_rest_list_buoy_datapoints_csv_ajax' );
+
+	// List Drifting Buoys 
+	function waf_rest_list_buoys_drifting( $id = 0 ) {
+		global $wpdb;
+
+		// All buoys
+		$query = "SELECT *
+		FROM {$wpdb->prefix}waf_buoys
+		WHERE `drifting` = 1";
+		// Specific buoy
+		if( $id != 0 ) {
+			$query = $wpdb->prepare(
+				$query . " AND `id` = %d",
+				$id
+			);
+		}
+		// Order by Menu Order
+		$query = $query . " ORDER BY `menu_order`";
+		// Get buoys
+		$buoys = $wpdb->get_results( $query, ARRAY_A );
+		
+		foreach( $buoys as $k => $buoy ) {
+			// Get Drifting Data
+			$drift_data = $wpdb->get_results(
+				$wpdb->prepare( 
+					"SELECT `data_points`, MIN(FROM_UNIXTIME(timestamp)) AS min_timestamp FROM `{$wpdb->prefix}waf_wave_data`
+					WHERE `buoy_id` = %d
+					GROUP BY DATE(FROM_UNIXTIME(timestamp)), HOUR(FROM_UNIXTIME(timestamp))
+					ORDER BY `timestamp` DESC
+					LIMIT 48", $buoy['id']
+				), ARRAY_A
+			);
+
+			if( $wpdb->num_rows > 0 ) {
+				array_walk( $drift_data, function( &$row, $key ) {
+					$row = $row['data_points'];
+				} );
+				
+				$buoys[$k]['data_points'] = $drift_data;
+			}
+		}
+		
+		// // Return JSON
+		return json_encode( $buoys );
+	}
+
+	function waf_rest_list_buoys_drifting_ajax() {
+		$id = 0;
+		if( isset( $_REQUEST['id'] ) ) {
+			$id = intval( $_REQUEST['id'] ); 
+		}
+		print waf_rest_list_buoys_drifting( $id );
+		wp_die();
+	}
+
+	add_action( 'wp_ajax_waf_rest_list_buoys_drifting', 'waf_rest_list_buoys_drifting_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_rest_list_buoys_drifting', 'waf_rest_list_buoys_drifting_ajax' );
