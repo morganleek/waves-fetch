@@ -261,11 +261,11 @@
 			);
 
 			if( $wpdb->num_rows > 0 ) {
-				array_walk( $drift_data, function( &$row, $key ) {
-					$row = $row['data_points'];
-				} );
+				// array_walk( $drift_data, function( &$row, $key ) {
+				// 	$row = $row['data_points'];
+				// } );
 				
-				$buoys[$k]['data_points'] = $drift_data;
+				$buoys[$k]['data'] = $drift_data;
 			}
 		}
 		
