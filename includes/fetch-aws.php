@@ -480,9 +480,14 @@
 				// requested this be removed from the Csvs
 				$wave_data_csv = str_replace( "blank,blank,blank", "blank1,blank2,blank3", $wave_data_csv );
 				
-				$reader = Reader::createFromString( $wave_data_csv );
-				$reader->setHeaderOffset(0);
-				$records = $reader->getRecords();
+				try {
+					$reader = Reader::createFromString( $wave_data_csv );
+					$reader->setHeaderOffset(0);
+					$records = $reader->getRecords();
+				}
+				catch( Exception $e ) {
+					echo 'Caught exception: ' . $e->getMessage(), "\n";
+				}
 				
 				// if( sizeof( $records ) > 0 ) {
 				// Put values in array by timestamp

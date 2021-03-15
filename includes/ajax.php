@@ -83,6 +83,9 @@
 			}
 		}
 
+		// Order
+		$query = " ORDER BY `timestamp` DESC ";
+
 		$data = $wpdb->get_results( $query, 'ARRAY_A' );
 
 		// No results in that time range?
