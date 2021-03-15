@@ -229,7 +229,7 @@
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoy_datapoints_csv', 'waf_rest_list_buoy_datapoints_csv_ajax' );
 
 	// List Drifting Buoys 
-	function waf_rest_list_buoys_drifting( $id = 0 ) {
+	function waf_rest_list_buoys_drifting( $id = 0, $limit = 240 ) {
 		global $wpdb;
 
 		// All buoys
@@ -256,7 +256,7 @@
 					WHERE `buoy_id` = %d
 					GROUP BY DATE(FROM_UNIXTIME(timestamp)), HOUR(FROM_UNIXTIME(timestamp))
 					ORDER BY `timestamp` DESC
-					LIMIT 48", $buoy['id']
+					LIMIT %d", $buoy['id'], $limit
 				), ARRAY_A
 			);
 
