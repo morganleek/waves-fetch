@@ -84,7 +84,7 @@
 		}
 
 		// Order
-		$query = " ORDER BY `timestamp` DESC ";
+		$query .= " ORDER BY `timestamp` DESC ";
 
 		$data = $wpdb->get_results( $query, 'ARRAY_A' );
 
