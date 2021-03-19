@@ -494,7 +494,7 @@
 				$insert_rows = [];
 				foreach( $records as $k => $r ) {
 					$r['buoy_id'] = $buoy_id;
-					$insert_rows[$r['Time (UTC)']] = $r;
+					$insert_rows[$r['Time (UNIX/UTC)']] = $r;
 				}
 
 				// Check which don't already exist
@@ -518,7 +518,7 @@
 					// Format for single insert
 					$values = "(" . implode( "), (", array_map(
 						function( $v ) {
-							return $v['buoy_id'] . ', \'' . json_encode( $v ) . '\', ' . $v['Time (UTC)'];
+							return $v['buoy_id'] . ', \'' . json_encode( $v ) . '\', ' . $v['Time (UNIX/UTC)'];
 						}, $insert_rows ) 
 					) . ")";
 					
