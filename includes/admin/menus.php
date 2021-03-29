@@ -1,5 +1,35 @@
 <?php
-	// Admin Options
+	// Register Admin Menus
+	function waf_options_page() {
+    add_menu_page(
+      'Wave Fetch Dashboard',
+      'Wave Fetch',
+      'manage_options',
+      'waf',
+      'waf_options_page_html',
+      'dashicons-post-status',
+      20
+    );
+
+		add_submenu_page( 
+			'waf', 
+			'Refresh', 
+			'Refresh', 
+			'manage_options', 
+			'refresh', 
+			'waf_options_page_refresh_html', 
+			1 
+		);
+	}
+
+	// Hooks
+	add_action('admin_menu', 'waf_options_page');
+
+	//
+	// Menu HTML
+	//
+
+	// Top Level Options Menu
 	function waf_options_page_html() {
 		if (!current_user_can('manage_options')) {
 			return;
@@ -80,33 +110,50 @@
 		<?php
 	}
 
-	function waf_options_page() {
-    add_menu_page(
-      'Wave Fetch Dashboard',
-      'Wave Fetch',
-      'manage_options',
-      'waf',
-      'waf_options_page_html',
-      'dashicons-post-status',
-      20
-    );
-	}
+	// Refresh a Buoy
+	function waf_options_page_refresh_html() {
+		if (!current_user_can('manage_options')) {
+			return;
+		}
 
-	function waf_register_settings() {
-		// Register Settings Options
-		register_setting( 
-			'waf-buoy-options', 
-			'waf_s3',
-			'waf_sanitize_options'
-		);		
-	}
+		// Messages
+		settings_errors( 'waf-buoy-options-refresh' );
+		?>
+			<div class="wrap">
+				<h1><?= esc_html(get_admin_page_title()); ?></h1>
+				<form method="post" action="options.php"> 
+					<?php
+						settings_fields( 'waf-buoy-options-refresh' ); 
+						do_settings_sections( 'waf-buoy-options-refresh' );
+					?>
+					<table class="form-table">
+						<tbody>
+							<tr>
+								<th scope="row"><label for="">Buoy to refresh</label></th>
+								<td>
+									<?php
+										global $wpdb;
+										$buoys = $wpdb->get_results("
+											SELECT * FROM {$wpdb->prefix}waf_buoys
+											ORDER BY `web_display_name`
+										");
 
-	function waf_sanitize_options( $option ) {
-		// Sanitize Settings Options
-		// todo
-		return $option;
+										if( $buoys ) {
+											print '<select name="waf_refresh[buoy]">';
+												foreach( $buoys as $buoy ) {
+													print '<option value="' . $buoy->id . '">';
+														print $buoy->web_display_name . " &mdash; " . $buoy->id;
+													print '</option>';
+												}
+											print '</select>';
+										}
+									?>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<?php submit_button( 'Refresh' ); ?>
+				</form>
+			</div>
+		<?php
 	}
-
-	// Hooks
-	add_action('admin_menu', 'waf_options_page');
-	add_action('admin_init', 'waf_register_settings');
