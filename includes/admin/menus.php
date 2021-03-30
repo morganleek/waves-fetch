@@ -85,9 +85,13 @@
 									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_update_flagged_buoys"</code><br>
 									2,32&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks each buoys to see if there is new data</em>
 								</li>
-								<li>
+								<!-- <li>
 									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_file"</code><br>
 									*/3&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs a single buoys new/updated file</em>
+								</li> -->
+								<li>
+									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_count_wave_file_requires_download" | xargs seq | xargs -Iz /usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes ajax-cli.php "action=waf_fetch_wave_file"</code><br>
+									3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs all buoys marked as requiring update (one at a time)</em>
 								</li>
 							</ol>
 							<h2>AWS</h2>

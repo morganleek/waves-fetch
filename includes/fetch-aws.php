@@ -543,10 +543,27 @@
 		}
 	}
 
+	function waf_count_wave_file_requires_download() {
+		global $wpdb;
+
+		$count = $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}waf_wave_files
+			WHERE `requires_update` = 1"
+		);
+
+		return $count;
+	}
+
 	//
 	// Fetch next available file
 	function waf_fetch_wave_file_ajax() {
 		waf_fetch_wave_file();
+		wp_die();
+	}
+
+	// Fetch number of files needing fetching
+	function waf_count_wave_file_requires_download_ajax() {
+		print waf_count_wave_file_requires_download();
 		wp_die();
 	}
 
@@ -569,10 +586,15 @@
 	// Action: waf_update_flagged_buoys
 	add_action( 'wp_ajax_waf_update_flagged_buoys', 'waf_update_flagged_buoys_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_update_flagged_buoys', 'waf_update_flagged_buoys_ajax' );
+	
+	// Action: waf_count_wave_file_requires_download
+	add_action( 'wp_ajax_waf_count_wave_file_requires_download', 'waf_count_wave_file_requires_download_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_count_wave_file_requires_download', 'waf_count_wave_file_requires_download_ajax' );
 
 	// Action: waf_fetch_wave_file
 	add_action( 'wp_ajax_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
+
 
 	function waf_fetch_wave_jpgs( $id = 0 ) {
 		global $wpdb;
