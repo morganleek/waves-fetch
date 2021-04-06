@@ -480,6 +480,7 @@
 				// requested this be removed from the Csvs
 				$wave_data_csv = str_replace( "blank,blank,blank", "blank1,blank2,blank3", $wave_data_csv );
 				
+				// Convert CSV to Object
 				try {
 					$reader = Reader::createFromString( $wave_data_csv );
 					$reader->setHeaderOffset(0);
@@ -497,22 +498,35 @@
 					$insert_rows[$r['Time (UNIX/UTC)']] = $r;
 				}
 
-				// Check which don't already exist
+				// Check which already exist and remove to allow post date adjustments
 				$timestamps = join( ", ", array_keys( $insert_rows ) );
-				$existing = $wpdb->get_results(
+				$wpdb->get_results(
 					$wpdb->prepare(
-						"SELECT *
+						"DELETE
 						FROM `{$wpdb->prefix}waf_wave_data` 
 						WHERE `buoy_id` = %d 
 						AND `timestamp` IN (" . $timestamps . ")",
 						$buoy_id
 					)
 				);
-				
-				// Remove existing elements
-				foreach( $existing as $e ) {
-					unset($insert_rows[$e->timestamp]);
-				}
+
+				// Removed this section that checked for existing records as the
+				// preferred method is to remove them and rewrite.
+				//
+				// $existing = $wpdb->get_results(
+				// 	$wpdb->prepare(
+				// 		"SELECT *
+				// 		FROM `{$wpdb->prefix}waf_wave_data` 
+				// 		WHERE `buoy_id` = %d 
+				// 		AND `timestamp` IN (" . $timestamps . ")",
+				// 		$buoy_id
+				// 	)
+				// );
+				//
+				// // Remove existing elements
+				// foreach( $existing as $e ) {
+				// 	unset($insert_rows[$e->timestamp]);
+				// }
 
 				if( sizeof( $insert_rows ) > 0 ) {
 					// Format for single insert
