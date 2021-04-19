@@ -263,7 +263,6 @@
 						if(isset($objects['Contents'])) {
 							$last_file_id = 0;
 							foreach ($objects['Contents'] as $key => $object) {
-								
 								// $last_file = $object['Key'];
 								if( strpos( $object['Key'], '.csv' ) !== false ) {
 									// Condense date path for storage
@@ -272,7 +271,7 @@
 									// Only CSV Files with Dates
 									if( !empty( $file_date ) && $file_date !== 0 ) {
 										$timestamp = $object['LastModified']->format('U');
-
+										
 										$file = $wpdb->get_row(
 											$wpdb->prepare(
 												"SELECT * FROM {$wpdb->prefix}waf_wave_files
@@ -593,6 +592,15 @@
 		wp_die();
 	}
 
+	// Force fetch
+	function waf_fetch_file_list_ajax() {
+		print_r($_REQUEST);
+		if( isset( $_REQUEST['id'] ) ) {
+			$id = intval( $_REQUEST['id'] );
+			waf_fetch_file_list( $id );
+		}
+	}
+
 	// Action: waf_fetch_buoys_csv
 	add_action( 'wp_ajax_waf_fetch_buoys_csv', 'waf_fetch_buoys_csv_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_buoys_csv', 'waf_fetch_buoys_csv_ajax' );
@@ -609,6 +617,9 @@
 	add_action( 'wp_ajax_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_wave_file', 'waf_fetch_wave_file_ajax' );
 
+	// Action: waf_fetch_file_list
+	add_action( 'wp_ajax_waf_fetch_file_list', 'waf_fetch_file_list_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_fetch_file_list', 'waf_fetch_file_list_ajax' );
 
 	function waf_fetch_wave_jpgs( $id = 0 ) {
 		global $wpdb;

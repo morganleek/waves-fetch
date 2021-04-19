@@ -249,10 +249,11 @@
 		$buoys = $wpdb->get_results( $query, ARRAY_A );
 		
 		foreach( $buoys as $k => $buoy ) {
+			
 			// Get Drifting Data
 			$drift_data = $wpdb->get_results(
 				$wpdb->prepare( 
-					"SELECT `data_points`, MIN(FROM_UNIXTIME(timestamp)) AS min_timestamp FROM `{$wpdb->prefix}waf_wave_data`
+					"SELECT `data_points`, MIN(timestamp) AS min_timestamp FROM `{$wpdb->prefix}waf_wave_data`
 					WHERE `buoy_id` = %d
 					GROUP BY DATE(FROM_UNIXTIME(timestamp)), HOUR(FROM_UNIXTIME(timestamp))
 					ORDER BY `timestamp` DESC
