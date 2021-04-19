@@ -594,7 +594,6 @@
 
 	// Force fetch
 	function waf_fetch_file_list_ajax() {
-		print_r($_REQUEST);
 		if( isset( $_REQUEST['id'] ) ) {
 			$id = intval( $_REQUEST['id'] );
 			waf_fetch_file_list( $id );
