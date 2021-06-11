@@ -42,7 +42,14 @@
 		if( isset( $_REQUEST['id'] ) ) {
 			$id = intval( $_REQUEST['id'] ); 
 		}
-		print waf_get_file_path( $id );
+		if( isset( $_REQUEST['buoy_id'] ) ) {
+			$buoy_id = intval( $_REQUEST['buoy_id'] ); 
+		}
+
+		$local_path = waf_get_file_path( $id );
+		if( !empty( $local_path ) ) {
+			print json_encode( array( 'id' => $id, 'buoy_id' => $buoy_id, 'path' => $local_path ) );
+		}
 		wp_die();
 	}
 
