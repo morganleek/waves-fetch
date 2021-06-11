@@ -109,5 +109,3 @@
 	add_action( 'wp_ajax_nopriv_waf_fetch_wave_jpgs', 'waf_fetch_wave_jpgs_ajax' );
 
 	
-
-	

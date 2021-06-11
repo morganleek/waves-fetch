@@ -78,12 +78,3 @@
 		// Notice
 		add_action( 'admin_notices', 'waf_database_updated' );
 	}
-
-	function waf_check_version() {
-		if( get_site_option( 'waf_database_version' ) != WAF__VERSION ) {
-			// Update Database
-			waf_database_init(); 
-		}
-	}
-
-	add_action( 'plugins_loaded', 'waf_check_version' );

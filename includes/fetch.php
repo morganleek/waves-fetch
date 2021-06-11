@@ -12,3 +12,5 @@
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/waves.php' );
 	// Fetch Memplots
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/memplots.php' );
+	// File Cache
+	require_once( WAF__PLUGIN_DIR . 'includes/fetch/cache.php' );

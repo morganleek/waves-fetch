@@ -64,4 +64,22 @@
 		}
 	}
 
+	function waf_fetch_cache_resource( $aws_path = '', $cache_path = '' ) {
+		$image = waf_fetch_resource( $aws_path );
+		if( !file_exists( $cache_path ) ) {
+			// Create folder path
+			wp_mkdir_p( dirname( $cache_path ) );
+			// Write file
+			if( $handle = fopen( $cache_path, 'w' ) ) {
+				if( fwrite( $handle, $image ) !== false ) {
+					return true;
+				}
+			}
+			// if( file_put_contents( $cache_path, $image ) !== false ) {
+			// 	return true;
+			// }
+		}
+		return false;
+	}
+
 	
