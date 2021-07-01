@@ -209,6 +209,13 @@
 
 	// Fetch buoys core CSV
 	function waf_fetch_buoys_csv() {
+		// Options
+		$waf_s3 = get_option('waf_s3');
+		if( empty( $waf_s3 ) ) {
+			// Not configured
+			return 0;
+		}
+
 		// Fetch from AWS
 		// No parameters for default buoys csv
 		$buoys_csv = waf_fetch_resource();
@@ -241,7 +248,7 @@
 					'drifting' => $r['drifting'],
 					'download_text' => ( isset( $r['download_text' ] ) ) ? $r['download_text'] : '',
 					'description' => ( isset( $r['description' ] ) ) ? $r['description'] : '',
-					'image' => ( isset( $r['image' ] ) ) ? $r['image'] : ''
+					'image' => ( isset( $r['image' ] ) ) ? $waf_s3['buoy_root'] . '/' . $r['label'] . '/' . $r['image'] : ''
 				);
 
 				waf_update_buoy( $buoy );
