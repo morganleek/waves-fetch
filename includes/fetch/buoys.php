@@ -212,6 +212,8 @@
 		// Fetch from AWS
 		// No parameters for default buoys csv
 		$buoys_csv = waf_fetch_resource();
+
+		
 		
 		if( $buoys_csv !== 0 ) {
 			// Convert to CSV Object
@@ -220,6 +222,7 @@
 			$records = $reader->getRecords();
 			$ids = [];
 			foreach( $records as $k => $r ) {
+				
 				$ids[] = intval( $r['buoy_id'] );
 				$buoy = array(
 					'id' => intval( $r['buoy_id'] ),
@@ -235,7 +238,10 @@
 					'last_update' => $r['last_updated'],
 					'lat' => $r['Latitude'],
 					'lng' => $r['Longitude'],
-					'drifting' => $r['drifting']
+					'drifting' => $r['drifting'],
+					'download_text' => ( isset( $r['download_text' ] ) ) ? $r['download_text'] : '',
+					'description' => ( isset( $r['description' ] ) ) ? $r['description'] : '',
+					'image' => ( isset( $r['image' ] ) ) ? $r['image'] : ''
 				);
 
 				waf_update_buoy( $buoy );
@@ -282,7 +288,7 @@
 
 			// Validate fields
 			if( !array_keys_exists( 
-				array( 'id', 'label', 'type', 'is_enabled', 'menu_order', 'data', 'start_date', 'end_date', 'first_update', 'last_update', 'lat', 'lng', 'drifting' ),
+				array( 'id', 'label', 'type', 'is_enabled', 'menu_order', 'data', 'start_date', 'end_date', 'first_update', 'last_update', 'lat', 'lng', 'drifting', 'download_text',	'description', 'image' ),
 				$buoy
 			) ) {
 				return 0;
@@ -298,7 +304,7 @@
 				$wpdb->insert(
 					$wpdb->prefix . 'waf_buoys', 
 					$buoy,
-					array( '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d' )
+					array( '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
 				);
 			}
 			else {
@@ -316,7 +322,7 @@
 					$wpdb->prefix . 'waf_buoys', 
 					$buoy,
 					array( 'id' => $buoy_id ),
-					array( '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d' ),
+					array( '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' ),
 					array( '%d' )
 				);
 			}

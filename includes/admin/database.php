@@ -34,6 +34,9 @@
 			lat VARCHAR(255) NOT NULL,
 			lng VARCHAR(255) NOT NULL,
 			drifting BOOLEAN DEFAULT FALSE NOT NULL,
+			download_text TEXT NOT NULL,
+			description TEXT NOT NULL,
+			image VARCHAR(255) NOT NULL,
 		  PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
