@@ -52,6 +52,8 @@
 		);
 		$_args = array_merge( $defaults, $args );
 
+		
+
 		$default_range = "-5 days";
 		$default_data_points = 48;
 		$has_results = false;
@@ -63,10 +65,8 @@
 			$_args['id']
 		);
 
-
-
 		// No range set
-		if( $start == 0 && $end == 0 ) {
+		if( $_args['start'] == 0 && $_args['end'] == 0 ) {
 			// // Grab last 2 days results
 			$query = $wpdb->prepare( 
 				$query . " AND `timestamp` > %d",
@@ -89,7 +89,7 @@
 				); 
 			}
 		}
-
+		
 		// Order
 		$query .= " ORDER BY `timestamp` DESC ";
 
