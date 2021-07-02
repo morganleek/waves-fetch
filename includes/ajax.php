@@ -48,11 +48,10 @@
 			'start' => 0,
 			'end' => 0,
 			'table' => $wpdb->prefix . 'waf_wave_data',
-			'json' => true
+			'json' => true,
+			'order' => 'DESC'
 		);
 		$_args = array_merge( $defaults, $args );
-
-		
 
 		$default_range = "-5 days";
 		$default_data_points = 48;
@@ -89,9 +88,9 @@
 				); 
 			}
 		}
-		
+
 		// Order
-		$query .= " ORDER BY `timestamp` DESC ";
+		$query .= " ORDER BY `timestamp` " . $_args['order'];
 
 		$data = $wpdb->get_results( $query, 'ARRAY_A' );
 
@@ -175,6 +174,8 @@
 
 	// Output Buoy Datapoints as CSV
 	function waf_rest_list_buoy_datapoints_csv_ajax( ) {
+		global $wpdb; 
+
 		$id = 0;
 		if( isset( $_REQUEST['id'] ) ) {
 			$id = intval( $_REQUEST['id'] ); 
@@ -195,13 +196,15 @@
 			$end = intval( $_REQUEST['end'] );
 		}
 
-		$data_points = waf_rest_list_buoy_datapoints( $id, $start, $end, false );
+		$data_points = waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'json' => false, 'order' => 'ASC' ) );
+		
 		if( isset( $data_points['data'] ) ) {
 			$csv_rows = [];
 			foreach( $data_points['data'] as $data ) {
 				$csv_rows[] = json_decode( $data['data_points'], true );
 			}
-			if( sizeof( $csv_rows ) ) {
+			
+			if( sizeof( $csv_rows ) > 0 ) {
 				$csv_headers = array_keys( $csv_rows[0] );
 				// Load the CSV
 				$csv = Writer::createFromString();
@@ -218,13 +221,6 @@
 				print $csv->getContent();
 			}
 		}
-		
-		// $json_data = [];
-		// foreach( $datapoints as $d ) {
-		// 	print '<pre>' . print_r($d, true) . '</pre>';
-		// 	// $json_data[] = $d->data;
-		// }
-		// // print_r($json_data);
 
 		wp_die();
 	}
