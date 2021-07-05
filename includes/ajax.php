@@ -229,7 +229,7 @@
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoy_datapoints_csv', 'waf_rest_list_buoy_datapoints_csv_ajax' );
 
 	// List Drifting Buoys 
-	function waf_rest_list_buoys_drifting( $id = 0, $limit = 240 ) {
+	function waf_rest_list_buoys_drifting( $id = 0, $limit = 480 ) {
 		global $wpdb;
 
 		// All buoys
