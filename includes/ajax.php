@@ -11,7 +11,7 @@
 		// All buoys
 		$query = "SELECT *, UNIX_TIMESTAMP() AS `now` 
 		FROM {$wpdb->prefix}waf_buoys
-		WHERE `is_enabled` = 1";
+		WHERE `is_enabled` != 0";
 		// Specific buoy
 		if( $id != 0 ) {
 			$query = $wpdb->prepare(
