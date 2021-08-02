@@ -165,7 +165,7 @@
 			$end = intval( $_REQUEST['end'] );
 		}
 
-		print waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data' ) );
+		print waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'order' => 'DESC' ) );
 		wp_die();
 	}
 
