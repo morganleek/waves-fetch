@@ -195,7 +195,7 @@
 						$_args['start_after'] = $_args['files'][array_key_last($_args['files'])];
 						$_args['continuation_token'] = $objects['NextContinuationToken'];
 						// Fetch again
-						waf_fetch_file_list_after( $_args );
+						return waf_fetch_file_list_after( $_args );
 					}
 					else {
 						return $_args['files'];
@@ -219,8 +219,6 @@
 		// Fetch from AWS
 		// No parameters for default buoys csv
 		$buoys_csv = waf_fetch_resource();
-
-		
 		
 		if( $buoys_csv !== 0 ) {
 			// Convert to CSV Object
