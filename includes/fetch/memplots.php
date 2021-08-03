@@ -52,10 +52,6 @@
 				'filter_pattern' => '.jpg'
 			) );
 
-			print 'After: ' . $start_after . "\n";
-			print 'Prefix: ' . $prefix . "\n";
-			print 'Files: ' . sizeof( $files ) . "\n";
-
 			// If files exist add to database
 			if( !empty( $files ) ) {
 				// Move into easy to manage table with timestamp keys
@@ -113,13 +109,3 @@
 	// Action: waf_fetch_wave_jpgs
 	add_action( 'wp_ajax_waf_fetch_wave_jpgs', 'waf_fetch_wave_jpgs_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_fetch_wave_jpgs', 'waf_fetch_wave_jpgs_ajax' );
-
-	// Ajax trigger
-	function waf_fetch_wave_jpgs_test_ajax( ) {
-		print waf_fetch_wave_jpgs( 6 );
-		wp_die();
-	}
-
-	// Action: waf_fetch_wave_jpgs_test
-	add_action( 'wp_ajax_waf_fetch_wave_jpgs_test', 'waf_fetch_wave_jpgs_test_ajax' );
-	add_action( 'wp_ajax_nopriv_waf_fetch_wave_jpgs_test', 'waf_fetch_wave_jpgs_test_ajax' );
