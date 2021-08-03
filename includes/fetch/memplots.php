@@ -30,7 +30,6 @@
 
 		// For each buoy fetch list
 		foreach( $buoys as $buoy ) {
-			print 'Buoy: ' . $buoy->id . "\n";
 			// Get last file fetched
 			$last_fetch = $wpdb->get_row(
 				$wpdb->prepare(
