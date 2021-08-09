@@ -113,7 +113,8 @@
 					$wpdb->prepare( 
 						"SELECT * FROM {$_args['table']} 
 						WHERE `buoy_id` = %d
-						AND `timestamp` > %d",
+						AND `timestamp` > %d
+						ORDER BY `timestamp` " . $_args['order'],
 						$_args['id'], date( 'U', strtotime( $default_range, $recent ) )
 					),
 					'ARRAY_A'
