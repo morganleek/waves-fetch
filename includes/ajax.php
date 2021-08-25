@@ -410,7 +410,15 @@
 			$end = intval( $_REQUEST['end'] );
 		}
 
-		print waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_memplots' ) );
+		print waf_rest_list_buoy_datapoints( 
+			array( 
+				'id' => $id, 
+				'start' => $start, 
+				'end' => $end, 
+				'table' => $wpdb->prefix . 'waf_wave_memplots',
+				'order' => 'DESC'
+			) 
+		);
 		wp_die();
 	}
 
