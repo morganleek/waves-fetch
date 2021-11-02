@@ -41,11 +41,44 @@ Wave data is stored in a foler in the root with **the same name as it's label** 
 
 Wave data is stored in a folder structure of `/text_archive/{ Year }/{ Month }/{ Day }`. Wave data is stored as a CSV with each day having it's own CSV file. The format for the file name is `{ Buoy Label }_{ Year }{ Month }{ Day }.csv`.
 
+### Attributes
+| Tag | Type | Description |
+| ------------- | ------------- | ----- |
+| `Time (UNIX/UTC)` | `timestamp` | Unix timestamp UTC for this wave event **(Required)** | 
+| `Timestamp (UTC)` | `string` | Human readable UTC datetime in the industry standard format `dd-M-yyyy hh:mm:ss` for example `05-Dec-2001 22:11:40` **(Required)** | 
+| `Site` | `string` | Buoy label I.e. 'PortHeadland'. No spaces. **(Required)** |
+| `BuoyID` | `string` | Buoy ID assigned by manufacturer |
+| `Hsig (m)` | `float` | Significant Wave Height (metres) |
+| `Tp (s)` | `float` | Peak Wave Period (s) |
+| `Tm (s)` | `float` | Mean Wave Period (s) |
+| `Dp (deg)` | `float` | Peak Wave Direction (deg) |
+| `DpSpr (deg)` | `float` | Peak Wave Directional Spreading (deg) |
+| `Dm (deg)` | `float` | Mean Wave Direction (deg) |
+| `DmSpr (deg)` | `float` | Mean Wave Directional Spreading (deg) |
+| `QF_waves` | `float` | Wave data quality |
+| `SST (degC)` | `float` | Sea Surface Temperature (degC) |
+| `QF_sst` | `float` | Sea Surface Temperature data quality |
+| `Bottom Temp (degC)` | `float` | Sea Bottom Temperature (degC) |
+| `QF_bott_temp` | `float` | Sea Bottom Temperature quality |
+| `WindSpeed (m/s)` | `float` | Wind Speed (m/s) |
+| `WindDirec (deg)` | `float` | Wind Direction (deg) |
+| `CurrmentMag (m/s)` | `float` | Current Mag (m/s) |
+| `CurrentDir (deg)` | `float` | Current Direction (deg) |
+| `Latitude (deg)` | `float` | Current latitude |
+| `Longitude (deg) ` | `float` | Current longitude |
+
+## Examples
+
 ```
 // S3 Bucket: 'waves'
 // Wave Root Folder: 'wavedata'
-// Buoy Label: 'exmouth'
-// Date: 2 Nov 2021
+
+// Root 
+waves/wavedata
+
+// Wave Data 
+//   Buoy Label: 'exmouth'
+//   Date: 2 Nov 2021
 
 waves/wavedata/exmouth/2021/11/02/exmouth_20211102.csv
 ```
