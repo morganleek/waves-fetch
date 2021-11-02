@@ -39,7 +39,7 @@ Wave data is stored in a foler in the root with **the same name as it's label** 
 
 `{ S3 Bucket }/{ Waves Root Folder }/{ Buoy Label }/`
 
-Wave data is stored in a folder structure of `/text_archive/{ Year }/{ Month }/{ Day }`. Wave data is stored as a CSV with each day having it's own CSV file. The format for the file name is `{ Buoy Label }_{ Year }{ Month }{ Day }.csv`.
+Wave data is stored in a folder structure of `/text_archive/{ Year }/{ Month }/{ Day }`. The use of the sub-folder `text_archive` allows you to also store other items in there should you need to. Wave data is stored as a CSV with each day having it's own CSV file. The format for the file name is `{ Buoy Label }_{ Year }{ Month }{ Day }.csv`.
 
 ### Attributes
 | Tag | Type | Description |
@@ -80,5 +80,5 @@ waves/wavedata
 //   Buoy Label: 'exmouth'
 //   Date: 2 Nov 2021
 
-waves/wavedata/exmouth/2021/11/02/exmouth_20211102.csv
+waves/wavedata/exmouth/text_archive/2021/11/02/exmouth_20211102.csv
 ```
