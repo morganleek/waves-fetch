@@ -74,7 +74,8 @@
 					?>
 					<table class="form-table">
 						<tbody>
-							<h2>Cron Commands</h2>
+							<h2>AWS</h2>
+							<h4>Cron Commands</h4>
 							<p>Add the following commands to your servers cron to automate buoy fetch. You may need to adjust the path to PHP depending on your systems configuration.</p>
 							<ol>
 								<li>
@@ -98,7 +99,7 @@
 									3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs all buoy memplots not already downloaded</em>
 								</li>
 							</ol>
-							<h2>AWS</h2>
+							<h4>Settings</h4>
 							<?php
 								foreach( $s3_fields as $field ) {
 									print '<tr>';
