@@ -287,106 +287,6 @@
 	add_action( 'wp_ajax_waf_rest_list_buoys_drifting', 'waf_rest_list_buoys_drifting_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoys_drifting', 'waf_rest_list_buoys_drifting_ajax' );
 
-	// function waf_rest_list_buoys_memplots( $id = 0, $start = 0, $end = 0, $json = true ) {
-	// 	global $wpdb;
-	// 	$default_range = "-5 days";
-	// 	$default_data_points = 48;
-	// 	$has_results = false;
-
-	// 	// Fetch in timeframe
-	// 	$query = $wpdb->prepare( 
-	// 		"SELECT * FROM {$wpdb->prefix}waf_wave_memplots
-	// 		WHERE `buoy_id` = %d",
-	// 		$id
-	// 	);
-
-	// 	// No range set
-	// 	if( $start == 0 && $end == 0 ) {
-	// 		// // Grab last 2 days results
-	// 		$query = $wpdb->prepare( 
-	// 			$query . " AND `timestamp` > %d",
-	// 			date( 'U', strtotime( $default_range ) )
-	// 		); 
-	// 		// Grab last 48 retults
-	// 		// $query = $wpdb->prepare(
-	// 		// 	$query . " ORDER BY `timestamp` DESC LIMIT %d",
-	// 		// 	$default_data_points
-	// 		// );
-	// 	}
-	// 	else {
-	// 		// Range set
-	// 		if( $start != 0 ) {
-	// 			$query = $wpdb->prepare( 
-	// 				$query . " AND `timestamp` > %d",
-	// 				$start
-	// 			); 
-	// 		}
-
-	// 		if( $end != 0 ) {
-	// 			$query = $wpdb->prepare( 
-	// 				$query . " AND `timestamp` < %d",
-	// 				$end
-	// 			); 
-	// 		}
-	// 	}
-
-	// 	// Order
-	// 	$query .= " ORDER BY `timestamp` DESC ";
-
-	// 	$data = $wpdb->get_results( $query, 'ARRAY_A' );
-
-	// 	// No results in that time range?
-	// 	if( $wpdb->num_rows == 0 && $start == 0 && $end == 0 ) {
-	// 		// Most recent timestamp
-	// 		$recent = $wpdb->get_var(
-	// 			$wpdb->prepare(
-	// 				"SELECT `timestamp` FROM {$wpdb->prefix}waf_wave_memplots 
-	// 				WHERE `buoy_id` = %d
-	// 				ORDER BY `timestamp` DESC
-	// 				LIMIT 1", 
-	// 				$id
-	// 			)
-	// 		);
-
-	// 		if( $recent ) {
-	// 			// Two days before most recent
-	// 			$data = $wpdb->get_results(
-	// 				$wpdb->prepare( 
-	// 					"SELECT * FROM {$wpdb->prefix}waf_wave_memplots 
-	// 					WHERE `buoy_id` = %d
-	// 					AND `timestamp` > %d",
-	// 					$id, date( 'U', strtotime( $default_range, $recent ) )
-	// 				),
-	// 				'ARRAY_A'
-	// 			);
-	// 		}
-	// 	}
-		
-	// 	if( !empty( $data ) ) {
-	// 		$has_results = true;
-	// 	}
-
-	// 	// array_walk( $data, function( &$data, $key ) {
-	// 	// 	// Convert serialized data to JSON
-	// 	// 	$data['data_points'] = unserialize( $data['data_points'] );
-	// 	// } );
-		
-	// 	if( $json ) {
-	// 		return json_encode(
-	// 			array(
-	// 				'success' => intval( $has_results ),
-	// 				'buoy_id' => $id,
-	// 				'data' => $data
-	// 			)
-	// 		);
-	// 	}
-	// 	return array(
-	// 		'success' => intval( $has_results ),
-	// 		'buoy_id' => $id,
-	// 		'data' => $data
-	// 	);
-	// }
-
 	function waf_rest_list_buoys_memplots_ajax( ) {
 		global $wpdb;
 		
@@ -424,3 +324,13 @@
 
 	add_action( 'wp_ajax_waf_rest_list_buoys_memplots', 'waf_rest_list_buoys_memplots_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoys_memplots', 'waf_rest_list_buoys_memplots_ajax' );
+
+	// Spotter AJAX
+	function waf_spotter_fetch_devices_ajax() {
+		waf_spotter_fetch_devices();
+
+		wp_die();
+	}
+
+	add_action( 'wp_ajax_waf_spotter_fetch_devices', 'waf_spotter_fetch_devices_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_spotter_fetch_devices', 'waf_spotter_fetch_devices_ajax' );

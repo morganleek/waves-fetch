@@ -7,6 +7,12 @@
 			'waf_sanitize_options'
 		);
 
+		register_setting( 
+			'waf-buoy-options', 
+			'waf_spotter',
+			'waf_sanitize_options'
+		);
+
 		register_setting(
 			'waf-buoy-options-refresh',
 			'waf_refresh',

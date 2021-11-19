@@ -71,6 +71,14 @@
 								'description' => 'Full path to file \'waves/buoys.csv\''
 							)
 						);
+
+						$spotter = get_option('waf_spotter');
+						$spotter_fields = array(
+							array( 
+								'label' => 'Spotter API Key',
+								'name' => 'key'
+							)
+						);
 					?>
 					<table class="form-table">
 						<tbody>
@@ -99,13 +107,29 @@
 									3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs all buoy memplots not already downloaded</em>
 								</li>
 							</ol>
-							<h4>Settings</h4>
 							<?php
 								foreach( $s3_fields as $field ) {
 									print '<tr>';
 										print '<th scope="row"><label for="waf_s3[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
 										print '<td>';
 											print '<input name="waf_s3[' . $field['name'] . ']" type="text" id="waf_s3[' . $field['name'] . ']" value="' . esc_attr( isset( $s3[$field['name']] ) ? $s3[$field['name']] : '' ) . '" class="regular-text">';
+											print isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
+										print '</td>';
+									print '</tr>';
+								}
+							?>
+						</tbody>
+					</table>
+					<h2>Spotter</h2>
+					<p>Use this method to grab records directly from Spotter</p>
+					<table class="form-table">
+						<tbody>
+							<?php
+								foreach( $spotter_fields as $field ) {
+									print '<tr>';
+										print '<th scope="row"><label for="waf_spotter[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
+										print '<td>';
+											print '<input name="waf_spotter[' . $field['name'] . ']" type="text" id="waf_spotter[' . $field['name'] . ']" value="' . esc_attr( isset( $spotter[$field['name']] ) ? $spotter[$field['name']] : '' ) . '" class="regular-text">';
 											print isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
 										print '</td>';
 									print '</tr>';

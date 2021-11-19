@@ -14,3 +14,5 @@
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/memplots.php' );
 	// File Cache
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/cache.php' );
+	// Spotter Wave Data
+	require_once( WAF__PLUGIN_DIR . 'includes/fetch/spotter.php' );
