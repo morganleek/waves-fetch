@@ -334,3 +334,20 @@
 
 	add_action( 'wp_ajax_waf_spotter_fetch_devices', 'waf_spotter_fetch_devices_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_spotter_fetch_devices', 'waf_spotter_fetch_devices_ajax' );
+
+	function waf_spotter_needs_update_ajax() {
+		waf_spotter_needs_update();
+
+		wp_die();
+	}
+	add_action( 'wp_ajax_waf_spotter_needs_update', 'waf_spotter_needs_update_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_spotter_needs_update', 'waf_spotter_needs_update_ajax' );
+
+	function waf_spotter_fetch_updates_ajax() {
+		waf_spotter_fetch_updates();
+
+		wp_die();
+	}
+	add_action( 'wp_ajax_waf_spotter_fetch_updates', 'waf_spotter_fetch_updates_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_spotter_fetch_updates', 'waf_spotter_fetch_updates_ajax' );
+	
