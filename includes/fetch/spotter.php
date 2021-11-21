@@ -178,7 +178,7 @@
 				$json_res = json_decode( $response );
 
 				$data = [];
-
+				
 				$checks = array(
 					$json_res->data->wind,
 					$json_res->data->surfaceTemp,
@@ -195,9 +195,10 @@
 							$final_update = ( $key > $final_update ) ? $key : $final_update;
 							if( !isset( $data[$key] ) ) {
 								$data[$key] = array( 
-									'buoy_id' => $buoy->id,
-									'Time (UNIX/UTC)' => $key,
-									'BuoyID' => $buoy->label
+									'Time (UNIX/UTC)' => intval( $key ),
+									'BuoyID' => $buoy->label,
+									'Site' => $buoy->label,
+									'buoy_id' => $buoy->id
 								);
 							}
 							$data[$key] = array_merge( $data[$key], get_object_vars( $data_point ) );
@@ -214,7 +215,7 @@
 						$wpdb->prefix . "waf_wave_data",
 						array(
 							'buoy_id' => $buoy->id,
-							'data_points' => json_encode( $entry ),
+							'data_points' => json_encode( $entry, JSON_UNESCAPED_SLASHES ),
 							'timestamp' => $timestamp
 						),
 						array( '%d', '%s', '%d' )
@@ -244,7 +245,6 @@
 			}
 		}
 	}
-
 
 	function waf_spotter_curl_request( $args ) {
 		$defaults = array(
@@ -312,13 +312,44 @@
 			'longitude' => 'Longitude (deg) ',
 		);
 
+		$defaults = array(
+			"Time (UNIX/UTC)" => 0,
+			"Timestamp (UTC)" => "",
+			"Site" => "",
+			"BuoyID" => "",
+			"Hsig (m)" => -9999,
+			"Tp (s)" => -9999,
+			"Tm (s)" => -9999,
+			"Dp (deg)" => -9999,
+			"DpSpr (deg)" => -9999,
+			"Dm (deg)" => -9999,
+			"DmSpr (deg)" => -9999,
+			"QF_waves" => 1,
+			// "SST (degC)" => 0,
+			// "QF_sst" => 1,
+			// "Bottom Temp (degC)" => 0,
+			// "QF_bott_temp" => 1,
+			"WindSpeed (m/s)" => -9999,
+			"WindDirec (deg)" => -9999,
+			"CurrmentMag (m/s)" => -9999,
+			"CurrentDir (deg)" => -9999,
+			"Latitude (deg)" => 0,
+			"Longitude (deg) " => 0,
+			"buoy_id" => 0
+		);
+
 		foreach( $data_array as $key_array => $data ) {
 			foreach( $data as $key => $value ) {
 				if( key_exists( $key, $conversions ) ) {
 					$data_array[$key_array][$conversions[$key]] = $value;
 					unset( $data_array[$key_array][$key] );
 				}
+				if( $key == 'degrees' ) {
+					$data_array[$key_array]['QF_sst'] = 1;
+				}
 			}
+
+			$data_array[$key_array] = array_merge( $defaults, $data_array[$key_array] );
 		}
 
 		return $data_array;

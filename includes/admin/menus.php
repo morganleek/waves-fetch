@@ -122,6 +122,20 @@
 					</table>
 					<h2>Spotter</h2>
 					<p>Use this method to grab records directly from Spotter</p>
+					<ol>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_spotter_fetch_devices"</code><br>
+							0&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks the buoys</em>
+						</li>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_spotter_needs_update"</code><br>
+							2,32&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks each buoys to see if there is new data</em>
+						</li>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_spotter_fetch_updates" </code><br>
+							3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs new buoy data</em>
+						</li>
+					</ol>
 					<table class="form-table">
 						<tbody>
 							<?php
