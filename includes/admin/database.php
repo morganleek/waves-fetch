@@ -37,7 +37,8 @@
 			download_text TEXT NOT NULL,
 			description TEXT NOT NULL,
 			image VARCHAR(255) NOT NULL,
-			download_enabled MEDIUMINT(9) DEFAULT 1 NOT NULL
+			download_enabled MEDIUMINT(9) DEFAULT 1 NOT NULL,
+			download_requires_details MEDIUMINT(9) DEFAULT 0 NOT NULL
 		  PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
