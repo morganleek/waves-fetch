@@ -3,3 +3,6 @@ vendor
 
 # Logs
 error_log
+
+# Cache
+cache
