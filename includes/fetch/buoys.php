@@ -246,7 +246,8 @@
 					'drifting' => $r['drifting'],
 					'download_text' => ( isset( $r['download_text' ] ) ) ? $r['download_text'] : '',
 					'description' => ( isset( $r['description' ] ) ) ? $r['description'] : '',
-					'image' => ( isset( $r['image' ] ) ) ? $waf_s3['buoy_root'] . '/' . $r['label'] . '/' . $r['image'] : ''
+					'image' => ( isset( $r['image' ] ) ) ? $waf_s3['buoy_root'] . '/' . $r['label'] . '/' . $r['image'] : '',
+					'download_enabled' => $r['download_enabled'] // d
 				);
 
 				waf_update_buoy( $buoy );
@@ -293,7 +294,7 @@
 
 			// Validate fields
 			if( !array_keys_exists( 
-				array( 'id', 'label', 'type', 'is_enabled', 'menu_order', 'data', 'start_date', 'end_date', 'first_update', 'last_update', 'lat', 'lng', 'drifting', 'download_text',	'description', 'image' ),
+				array( 'id', 'label', 'type', 'is_enabled', 'menu_order', 'data', 'start_date', 'end_date', 'first_update', 'last_update', 'lat', 'lng', 'drifting', 'download_text',	'description', 'image', 'download_enabled' ),
 				$buoy
 			) ) {
 				return 0;
@@ -309,7 +310,7 @@
 				$wpdb->insert(
 					$wpdb->prefix . 'waf_buoys', 
 					$buoy,
-					array( '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
+					array( '%d', '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%d' )
 				);
 			}
 			else {
@@ -327,7 +328,7 @@
 					$wpdb->prefix . 'waf_buoys', 
 					$buoy,
 					array( 'id' => $buoy_id ),
-					array( '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s' ),
+					array( '%s', '%s', '%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%d' ),
 					array( '%d' )
 				);
 			}
