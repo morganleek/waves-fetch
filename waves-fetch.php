@@ -3,7 +3,7 @@
 	Plugin Name:  Waves Fetch
 	Plugin URI:   https://github.com/morganleek/waves-fetch/
 	Description:  WP Plugin for fetching buoy data via AWS
-	Version:      1.2.16
+	Version:      1.2.17
 	Author:       https://morganleek.me/
 	Author URI:   https://morganleek.me/
 	License:      GPL2
@@ -29,6 +29,9 @@
 
 	// Fetch Mechanism
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch.php' );
+
+	// Collect Form Data
+	require_once( WAF__PLUGIN_DIR . 'includes/collect.php' );
 
 	// Return 
 	require_once( WAF__PLUGIN_DIR . 'includes/ajax.php' );

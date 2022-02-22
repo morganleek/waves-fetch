@@ -76,6 +76,17 @@
 			PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
+
+		// User Submitted Information
+		$table_name = $wpdb->prefix . "waf_user_data";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_id MEDIUMINT(9) NOT NULL,
+			form_data VARCHAR(4096) NOT NULL,
+			timestamp BIGINT(8),
+			PRIMARY KEY  (id)
+		) $charset_collate;";
+		dbDelta( $sql );
 		
 		// Update Database Version Option
 		update_option( 'waf_database_version', WAF__VERSION );
