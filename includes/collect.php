@@ -14,12 +14,12 @@
 			print 0;
 			wp_die();
 		}
-
+		
 		if( !wp_verify_nonce( $nonce, 'user_submitted_data' . date( 'YmdHa' ) ) ) {
 			print 0;
 			wp_die();
 		}
-
+		
 		$wpdb->insert(
 			$wpdb->prefix . 'waf_user_data',
 			array(
@@ -29,6 +29,28 @@
 			),
 			array( '%d', '%s', '%s' )
 		);
+		
+		$buoy_label = $wpdb->get_var( 
+			$wpdb->prepare( 
+				"SELECT `label` FROM `wp_waf_buoys` WHERE `id` = %d",
+				$_REQUEST['buoy_id']
+			)
+		);
+		
+		// Send Email
+		if( $options = get_option('wad_options') ) {
+			if( isset( $options['buoy_display_user_info_email_recipient'] ) ) {
+				print $options['buoy_display_user_info_email_recipient'];
+				$message = 'Buoy: ' . $buoy_label . "\n";
+				
+				$form_data = json_decode( stripslashes( $_REQUEST['form_data'] ) );
+				foreach( $form_data as $key => $data ) {
+					$message .= $key . ': ' . $data . "\n";
+				}
+
+				wp_mail( $options['buoy_display_user_info_email_recipient'], 'SA Waves Download User Info', $message );
+			}
+		}
 		
 		wp_die();
 	}
