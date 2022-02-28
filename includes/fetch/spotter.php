@@ -52,7 +52,7 @@
 				$exist = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT `id` FROM `{$wpdb->prefix}waf_buoys`
-						 WHERE `id` IN (" . implode(",", array_keys( $buoys ) ) . ")"
+						WHERE `id` IN (" . implode(",", array_keys( $buoys ) ) . ")"
 					)
 				);
 	
@@ -271,7 +271,7 @@
 		
 		if( $errno = curl_errno( $request ) ) {
 			$error_message = curl_strerror( $errno );
-			print "cURL error ({$errno}):\n {$error_message}";
+			error_log( "cURL error ({$errno}):\n {$error_message} - {$_args['url']}" );
 			return false;
 		}
 		else {
