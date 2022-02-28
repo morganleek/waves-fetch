@@ -148,10 +148,12 @@
 		}
 
 		// Fetch limit 
-		$limit = 100;
+		$limit = 5; // 100;
 
 		// Fetch all buoys requiring an update
 		$buoys = $wpdb->get_results( "SELECT * FROM `{$wpdb->prefix}waf_buoys` WHERE `requires_update` = 1 AND `type` = 1" );
+
+		error_log( "Buoys requiring updates found " . $wpdb->num_rows, 0 );
 
 		if( $buoys ) {
 			foreach( $buoys as $buoy ) {
