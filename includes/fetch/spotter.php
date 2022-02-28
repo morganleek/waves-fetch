@@ -215,6 +215,9 @@
 				// Convert keys to system format
 				$local_format = waf_spotter_to_waf_keys( $data );
 
+				// Debug
+				error_log( "Local format size: " . sizeof( $local_format ), 0 );
+
 				// Inset into DB
 				foreach( $local_format as $timestamp => $entry ) {
 					$wpdb->insert(
