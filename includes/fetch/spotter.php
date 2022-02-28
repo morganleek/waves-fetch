@@ -78,9 +78,10 @@
 							'menu_order' => 0,
 							'start_after_id' => 0,
 							'web_display_name' => $buoy['name'],
-							'description' => "Spotter Buoy"
+							'description' => "Spotter Buoy",
+							'type' => 1
 						),
-						array( '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s' )
+						array( '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d' )
 					);
 				}
 			}
@@ -150,7 +151,7 @@
 		$limit = 100;
 
 		// Fetch all buoys requiring an update
-		$buoys = $wpdb->get_results( "SELECT * FROM `{$wpdb->prefix}waf_buoys` WHERE `requires_update` = 1" );
+		$buoys = $wpdb->get_results( "SELECT * FROM `{$wpdb->prefix}waf_buoys` WHERE `requires_update` = 1 AND `type` = 1" );
 
 		if( $buoys ) {
 			foreach( $buoys as $buoy ) {
@@ -173,6 +174,9 @@
 					"url" => "https://api.sofarocean.com/api/wave-data?" . implode( '&', $params ),
 					"token" => $waf_spotter['key']
 				) );
+
+				// Debug 
+				error_log( "Response for " . $spotterId . ": Length " . strlen( $response ), 0 );
 				
 				// $response = '{"data":{"spotterId":"SPOT-0867","limit":10,"waves":[{"significantWaveHeight":0.01,"peakPeriod":20.48,"meanPeriod":10.24,"peakDirection":7.765,"peakDirectionalSpread":79.25,"meanDirection":37.776,"meanDirectionalSpread":78.999,"timestamp":"2020-10-19T23:31:31.000Z","latitude":37.77335,"longitude":-122.38632},{"significantWaveHeight":0.06,"peakPeriod":5.12,"meanPeriod":5.48,"peakDirection":27.087,"peakDirectionalSpread":74.975,"meanDirection":180,"meanDirectionalSpread":79.064,"timestamp":"2020-10-20T00:01:31.000Z","latitude":37.77335,"longitude":-122.38632},{"significantWaveHeight":0.07,"peakPeriod":10.24,"meanPeriod":7.4,"peakDirection":42.29,"peakDirectionalSpread":70.922,"meanDirection":30.44,"meanDirectionalSpread":76.443,"timestamp":"2021-07-16T04:55:25.000Z","latitude":-34.95325,"longitude":138.50555},{"significantWaveHeight":0.04,"peakPeriod":10.24,"meanPeriod":5.96,"peakDirection":212.196,"peakDirectionalSpread":78.461,"meanDirection":86.186,"meanDirectionalSpread":79.222,"timestamp":"2021-07-16T05:25:25.000Z","latitude":-34.95325,"longitude":138.50553},{"significantWaveHeight":0.05,"peakPeriod":10.24,"meanPeriod":6.78,"peakDirection":11.768,"peakDirectionalSpread":80.052,"meanDirection":58.339,"meanDirectionalSpread":78.187,"timestamp":"2021-07-16T05:55:25.000Z","latitude":-34.95327,"longitude":138.50555},{"significantWaveHeight":0.05,"peakPeriod":6.82,"meanPeriod":6.52,"peakDirection":118.021,"peakDirectionalSpread":60.236,"meanDirection":98.945,"meanDirectionalSpread":76.576,"timestamp":"2021-07-16T06:25:25.000Z","latitude":-34.95325,"longitude":138.50555},{"significantWaveHeight":0.17,"peakPeriod":10.24,"meanPeriod":3.78,"peakDirection":234.486,"peakDirectionalSpread":54.644,"meanDirection":258.111,"meanDirectionalSpread":76.275,"timestamp":"2021-09-13T12:06:00.000Z","latitude":-34.85525,"longitude":138.3547},{"significantWaveHeight":0.36,"peakPeriod":11.36,"meanPeriod":5.78,"peakDirection":217.398,"peakDirectionalSpread":42.796,"meanDirection":217.595,"meanDirectionalSpread":69.572,"timestamp":"2021-09-13T12:36:00.000Z","latitude":-34.89295,"longitude":138.2922},{"significantWaveHeight":1.23,"peakPeriod":11.36,"meanPeriod":7.88,"peakDirection":260.386,"peakDirectionalSpread":23.884,"meanDirection":264.02,"meanDirectionalSpread":44.104,"timestamp":"2021-09-13T22:12:01.000Z","latitude":-35.51842,"longitude":137.04245},{"significantWaveHeight":1.56,"peakPeriod":11.36,"meanPeriod":8.38,"peakDirection":260.488,"peakDirectionalSpread":20.714,"meanDirection":263.091,"meanDirectionalSpread":38.692,"timestamp":"2021-09-13T22:42:01.000Z","latitude":-35.55008,"longitude":136.97073}],"surfaceTemp":[{"degrees":13.72,"latitude":-34.95325,"longitude":138.5055333,"timestamp":"2021-07-16T05:25:25.000Z"},{"degrees":11.26,"latitude":-34.95325,"longitude":138.50555,"timestamp":"2021-07-16T06:25:25.000Z"}],"wind":[{"speed":0,"direction":125,"seasurfaceId":1,"latitude":37.77335,"longitude":-122.3863167,"timestamp":"2020-10-19T23:31:31.000Z"},{"speed":0,"direction":74,"seasurfaceId":1,"latitude":37.77335,"longitude":-122.3863167,"timestamp":"2020-10-20T00:01:31.000Z"},{"speed":0,"direction":22,"seasurfaceId":1,"latitude":-34.95325,"longitude":138.50555,"timestamp":"2021-07-16T04:55:25.000Z"},{"speed":0,"direction":354,"seasurfaceId":1,"latitude":-34.95325,"longitude":138.5055333,"timestamp":"2021-07-16T05:25:25.000Z"},{"speed":0,"direction":22,"seasurfaceId":1,"latitude":-34.9532667,"longitude":138.50555,"timestamp":"2021-07-16T05:55:25.000Z"},{"speed":0,"direction":40,"seasurfaceId":1,"latitude":-34.95325,"longitude":138.50555,"timestamp":"2021-07-16T06:25:25.000Z"}]}}';
 				$json_res = json_decode( $response );
