@@ -229,6 +229,9 @@
 						),
 						array( '%d', '%s', '%d' )
 					);
+
+					// Debug 
+					error_log( "Insert ID: " . $wpdb->insert_id, 0 );
 				}
 
 				// Update Buoy's own info 
