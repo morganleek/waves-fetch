@@ -21,70 +21,70 @@
 			"token" => $waf_spotter['key']
 		) );
 
-		// Testing
-		// $response = '{"message":"4 devices","data":{"devices":[{"name":"TestBuoy","spotterId":"SPOT-0001"},{"name":"SPOT0867-KI","spotterId":"SPOT-0867"},{"name":"SPOT0940-Semaphore","spotterId":"SPOT-0940"},{"name":"SPOT0943-Brighton","spotterId":"SPOT-0943"},{"name":"","spotterId":"SPOT-1019"}]}}';
+		// // Testing
+		// // $response = '{"message":"4 devices","data":{"devices":[{"name":"TestBuoy","spotterId":"SPOT-0001"},{"name":"SPOT0867-KI","spotterId":"SPOT-0867"},{"name":"SPOT0940-Semaphore","spotterId":"SPOT-0940"},{"name":"SPOT0943-Brighton","spotterId":"SPOT-0943"},{"name":"","spotterId":"SPOT-1019"}]}}';
 		
-		if( $response ) {	
-			$json_res = json_decode( $response );
+		// if( $response ) {	
+		// 	$json_res = json_decode( $response );
 	
-			// Result buoys
-			$buoys = [];
+		// 	// Result buoys
+		// 	$buoys = [];
 	
-			// Regex Spotter IDs for DB ID
-			foreach( $json_res->data->devices as $device ) {
-				// Data
-				$name = $device->name;
-				$spotterId = $device->spotterId;
-				// Regex the ID
-				$match = [];
-				preg_match( '/(?:SPOT-)(.*)/', $spotterId, $match );
-				if( sizeof( $match ) == 2 ) {
-					// Push ID as int to array
-					$buoys[ intval( $match[1] ) ] = array(
-						'spotterId' => $spotterId,
-						'name' => $name
-					);
-				}
-			}
+		// 	// Regex Spotter IDs for DB ID
+		// 	foreach( $json_res->data->devices as $device ) {
+		// 		// Data
+		// 		$name = $device->name;
+		// 		$spotterId = $device->spotterId;
+		// 		// Regex the ID
+		// 		$match = [];
+		// 		preg_match( '/(?:SPOT-)(.*)/', $spotterId, $match );
+		// 		if( sizeof( $match ) == 2 ) {
+		// 			// Push ID as int to array
+		// 			$buoys[ intval( $match[1] ) ] = array(
+		// 				'spotterId' => $spotterId,
+		// 				'name' => $name
+		// 			);
+		// 		}
+		// 	}
 	
-			if( !empty( $buoys ) ) {
-				// Check which exist 
-				$exist = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT `id` FROM `{$wpdb->prefix}waf_buoys`
-						WHERE `id` IN (" . implode(",", array_keys( $buoys ) ) . ")"
-					)
-				);
+		// 	if( !empty( $buoys ) ) {
+		// 		// Check which exist 
+		// 		$exist = $wpdb->get_col(
+		// 			$wpdb->prepare(
+		// 				"SELECT `id` FROM `{$wpdb->prefix}waf_buoys`
+		// 				WHERE `id` IN (" . implode(",", array_keys( $buoys ) ) . ")"
+		// 			)
+		// 		);
 	
-				// Flip Keys and Values
-				$exist = array_flip( $exist );
+		// 		// Flip Keys and Values
+		// 		$exist = array_flip( $exist );
 				
-				// Difference with Buoys
-				$diff = array_diff_key( $buoys, $exist );
+		// 		// Difference with Buoys
+		// 		$diff = array_diff_key( $buoys, $exist );
 	
-				// Add to Database
-				foreach( $diff as $key => $buoy ) {
+		// 		// Add to Database
+		// 		foreach( $diff as $key => $buoy ) {
 					
-					$wpdb->insert(
-						$wpdb->prefix . "waf_buoys",
-						array(
-							'id' => $key,
-							'label' => $buoy['name'],
-							'is_enabled' => 1,
-							'start_date' => 0,
-							'end_date' => 0,
-							'first_update' => 0,
-							'last_update' => 0,
-							'menu_order' => 0,
-							'start_after_id' => 0,
-							'web_display_name' => $buoy['name'],
-							'description' => "Spotter Buoy"
-						),
-						array( '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s' )
-					);
-				}
-			}
-		}
+		// 			$wpdb->insert(
+		// 				$wpdb->prefix . "waf_buoys",
+		// 				array(
+		// 					'id' => $key,
+		// 					'label' => $buoy['name'],
+		// 					'is_enabled' => 1,
+		// 					'start_date' => 0,
+		// 					'end_date' => 0,
+		// 					'first_update' => 0,
+		// 					'last_update' => 0,
+		// 					'menu_order' => 0,
+		// 					'start_after_id' => 0,
+		// 					'web_display_name' => $buoy['name'],
+		// 					'description' => "Spotter Buoy"
+		// 				),
+		// 				array( '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s' )
+		// 			);
+		// 		}
+		// 	}
+		// }
 	}
 
 	function waf_spotter_needs_update( ) {
@@ -267,16 +267,18 @@
 		curl_setopt( $request, CURLOPT_RETURNTRANSFER, true );
 		
 		$response = curl_exec ( $request );
-		curl_close( $request );
 		
-		if( $errno = curl_errno( $request ) ) {
-			$error_message = curl_strerror( $errno );
-			error_log( "cURL error ({$errno}):\n {$error_message} - {$_args['url']}" );
+		// Check for failure
+		if( curl_error( $request ) ) {
+			$error_message = "cURL error: " . curl_error( $request );
+			error_log( $error_message, 0 );
+			curl_close( $request );
 			return false;
 		}
-		else {
-			return $response;
-		}
+		// Close cURL
+		curl_close( $request );
+		// Return response
+		return $response;
 	}
 
 	function waf_spotter_ISO8601_to_epoch( $time ) {
