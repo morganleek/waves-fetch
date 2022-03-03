@@ -153,7 +153,7 @@
 		}
 
 		// Fetch limit 
-		$limit = 100;
+		$limit = 5;
 
 		// Fetch all buoys requiring an update
 		$buoys = $wpdb->get_results( "SELECT * FROM `{$wpdb->prefix}waf_buoys` WHERE `requires_update` = 1 AND `type` = 1" );
@@ -166,7 +166,19 @@
 				$spotterId = sprintf( "SPOT-%04d", $buoy->id ) ;
 
 				// Fetch last update from buoys list
-				$last_update = waf_spotter_epoch_to_ISO8601( $buoy->last_update );
+				// $last_update = waf_spotter_epoch_to_ISO8601( $buoy->last_update );
+
+				// Fetch last buoy update from wave_data
+				$last_update_timestamp = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT `timestamp` FROM `{$wpdb->prefix}waf_wave_data` 
+						WHERE `buoy_id` = %d 
+						ORDER BY `timestamp` 
+						DESC LIMIT 1",
+						$buoy->id
+					)
+				);
+				$last_update = waf_spotter_epoch_to_ISO8601( $last_update_timestamp );
 
 				$params = array(
 					'spotterId=' . $spotterId,
@@ -227,15 +239,33 @@
 
 				// Inset into DB
 				foreach( $local_format as $timestamp => $entry ) {
-					$wpdb->insert(
-						$wpdb->prefix . "waf_wave_data",
-						array(
-							'buoy_id' => $buoy->id,
-							'data_points' => json_encode( $entry, JSON_UNESCAPED_SLASHES ),
-							'timestamp' => $timestamp
-						),
-						array( '%d', '%s', '%d' )
+					// Check data doesn't already exist
+					$wpdb->get_results(
+						$wpdb->prepare(
+							"SELECT * FROM {$wpdb->prefix}waf_wave_data
+							WHERE `buoy_id` = %d
+							AND `timestamp` = %d",
+							$buoy->id,
+							$timestamp
+						)
 					);
+
+					if( $wpdb->num_rows == 0 ) {
+						// Listing already exists
+						$wpdb->insert(
+							$wpdb->prefix . "waf_wave_data",
+							array(
+								'buoy_id' => $buoy->id,
+								'data_points' => json_encode( $entry, JSON_UNESCAPED_SLASHES ),
+								'timestamp' => $timestamp
+							),
+							array( '%d', '%s', '%d' )
+						);
+					}
+					else {
+						error_log( "Record already exists for buoy (" . $buoy->id . ') at ' . $timestamp, 0 );
+					}
+
 
 					// Debug 
 					// error_log( "Insert ID: " . $wpdb->insert_id, 0 );
