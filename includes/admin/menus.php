@@ -18,7 +18,7 @@
 			'manage_options', 
 			'refresh', 
 			'waf_options_page_refresh_html', 
-			1 
+			2 
 		);
 	}
 
@@ -46,28 +46,34 @@
 						$s3_fields = array(
 							array( 
 								'label' => 'S3 Key',
-								'name' => 'key'
+								'name' => 'key',
+								'type' => 'text',
 							),
 							array( 
 								'label' => 'S3 Secret',
-								'name' => 'secret'
+								'name' => 'secret',
+								'type' => 'text',
 							),
 							array( 
 								'label' => 'S3 Region',
 								'name' => 'region',
+								'type' => 'text',
 								'description' => 'AWS region \'Asia Pacific (Sydney) ap-southeast-2 is <strong>ap-southeast-2</strong>\''
 							),
 							array( 
 								'label' => 'S3 Bucket',
-								'name' => 'bucket'
+								'name' => 'bucket',
+								'type' => 'text',
 							),
 							array( 
 								'label' => 'S3 Buoy Root',
-								'name' => 'buoy_root'
+								'name' => 'buoy_root',
+								'type' => 'text',
 							),
 							array( 
 								'label' => 'S3 Buoy CSV',
 								'name' => 'buoy_csv',
+								'type' => 'text',
 								'description' => 'Full path to file \'waves/buoys.csv\''
 							)
 						);
@@ -76,7 +82,13 @@
 						$spotter_fields = array(
 							array( 
 								'label' => 'Spotter API Key',
-								'name' => 'key'
+								'name' => 'key',
+								'type' => 'text'
+							),
+							array(
+								'label' => 'Manage Buoys Locally',
+								'name' => 'manage-locally',
+								'type' => 'checkbox'
 							)
 						);
 					?>
@@ -112,7 +124,7 @@
 									print '<tr>';
 										print '<th scope="row"><label for="waf_s3[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
 										print '<td>';
-											print '<input name="waf_s3[' . $field['name'] . ']" type="text" id="waf_s3[' . $field['name'] . ']" value="' . esc_attr( isset( $s3[$field['name']] ) ? $s3[$field['name']] : '' ) . '" class="regular-text">';
+											print '<input name="waf_s3[' . $field['name'] . ']" type="' . $field['type'] . '" id="waf_s3[' . $field['name'] . ']" value="' . esc_attr( isset( $s3[$field['name']] ) ? $s3[$field['name']] : '' ) . '" class="regular-text">';
 											print isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
 										print '</td>';
 									print '</tr>';
@@ -122,6 +134,20 @@
 					</table>
 					<h2>Spotter</h2>
 					<p>Use this method to grab records directly from Spotter</p>
+					<ol>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_spotter_fetch_devices"</code><br>
+							0&nbsp;&nbsp;0,12&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Update device list in the DB</em>
+						</li>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_spotter_needs_update"</code><br>
+							1,31&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks each buoys to see if there is new data</em>
+						</li>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_spotter_fetch_updates"</code><br>
+							3,18,33,48&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs buoys with new data</em>
+						</li>
+					</ol>
 					<table class="form-table">
 						<tbody>
 							<?php
@@ -129,7 +155,15 @@
 									print '<tr>';
 										print '<th scope="row"><label for="waf_spotter[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
 										print '<td>';
-											print '<input name="waf_spotter[' . $field['name'] . ']" type="text" id="waf_spotter[' . $field['name'] . ']" value="' . esc_attr( isset( $spotter[$field['name']] ) ? $spotter[$field['name']] : '' ) . '" class="regular-text">';
+											switch( $field['type'] ) {
+												case 'checkbox':
+													print '<input name="waf_spotter[' . $field['name'] . ']" type="checkbox" id="waf_spotter[' . $field['name'] . ']" value="1" ' . checked( $spotter[$field['name']], '1', false ) . ' class="regular-text">';
+													break;
+												case 'text':
+												default:
+													print '<input name="waf_spotter[' . $field['name'] . ']" type="text" id="waf_spotter[' . $field['name'] . ']" value="' . esc_attr( isset( $spotter[$field['name']] ) ? $spotter[$field['name']] : '' ) . '" class="regular-text">';
+													break;
+											}
 											print isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
 										print '</td>';
 									print '</tr>';
@@ -142,6 +176,23 @@
 			</div>
 		<?php
 	}
+
+	// Manage Buoys
+	/*
+	// function waf_options_page_buoys_html() {
+	// 	if (!current_user_can('manage_options')) {
+	// 		return;
+	// 	}
+	// 	settings_errors( 'waf-buoy-options-manage-buoys' );
+
+	// 	?>
+	// 		<div class="wrap">
+	// 			<h1><?= esc_html(get_admin_page_title()); ?></h1>
+
+	// 		</div>
+	// 	<?php
+	// }
+	*/
 
 	// Refresh a Buoy
 	function waf_options_page_refresh_html() {

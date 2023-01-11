@@ -7,6 +7,8 @@
 	require_once( WAF__PLUGIN_DIR . 'includes/admin/database.php' );
 	// File Cache
 	require_once( WAF__PLUGIN_DIR . 'includes/admin/cache.php' );
+	// Manage Buoys
+	require_once( WAF__PLUGIN_DIR . 'includes/admin/buoys.php' );
 
 
 	function waf_check_version() {
