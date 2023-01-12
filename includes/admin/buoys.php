@@ -289,6 +289,17 @@
 				);
 
 				add_action( "load-$hook", [ $this, 'screen_option' ] );
+
+				// $hook = add_submenu_page( 
+				// 	'waf', 
+				// 	'Migrate', 
+				// 	'Migrate', 
+				// 	'manage_options', 
+				// 	'migrate', 
+				// 	[$this, 'plugin_migration_page']
+				// );
+
+				// add_action( "load-$hook", [ $this, 'screen_option' ] );
 			}
 
 
@@ -305,6 +316,54 @@
 
 		}
 
+		public function plugin_migration_page() {
+			global $wpdb;
+			$buoys = $wpdb->get_results("
+				SELECT * FROM {$wpdb->prefix}waf_buoys
+				ORDER BY `web_display_name`
+			");
+
+			$buoys_select = '';
+			if( $buoys ) {
+				foreach( $buoys as $buoy ) {
+					$buoys_select .= '<option value="' . $buoy->id . '">';
+					$buoys_select .= $buoy->web_display_name . " &mdash; " . $buoy->id;
+					$buoys_select .= '</option>';
+				}
+			}
+
+			
+
+			?>
+			<div class="wrap">
+				<h2>Migrate Buoy Data</h2>
+				<table class="form-table">
+					<tbody>
+						<tr>
+							<th scope="row"><label for="">From Buoy</label></th>
+							<td><select name="waf_migrate_from"><?php print $buoys_select; ?></select></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="">To Buoy</label></th>
+							<td><select name="waf_migrate_to"><?php print $buoys_select; ?></select></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="">Start Date</label></th>
+							<td><input name="waf_start_date" id="waf_start_date" type="datetime-local" value=""></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="">End Date</label></th>
+							<td><input name="waf_end_date" id="waf_end_date" type="datetime-local" value=""></td>
+						</tr>
+					</tbody>
+				</table>
+				<p class="submit">
+					<input type="submit" name="submit" id="submit" class="button button-secondary" value="Test">
+					<input type="submit" name="submit" id="submit" class="button button-primary" value="Migrate">
+				</p>
+			</div>
+			<?php
+		}
 
 		/**
 		 * Plugin settings page
@@ -321,251 +380,257 @@
 									global $wpdb;
 									
 									$title = 'Add New Buoy';
+
+									// All fields in the form and db
+									$fields = array(
+										array(
+											'field' => 'web_display_name', 
+											'form_field' => 'web-display-name',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Web Display Name',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'label', 
+											'form_field' => 'label',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Label',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'type', 
+											'form_field' => 'type',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Type',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'is_enabled', 
+											'form_field' => 'is-enabled',
+											'input' => 'checkbox',
+											'value' => '',
+											'label' => 'Is enabled',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'menu_order', 
+											'form_field' => 'menu-order',
+											'input' => 'text',
+											'value' => '0',
+											'label' => 'Menu Order',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'data', 
+											'form_field' => 'data',
+											'input' => 'textarea',
+											'value' => '',
+											'label' => 'Data',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'start_date', 
+											'form_field' => 'start-date',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Start Date',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'end_date', 
+											'form_field' => 'end-date',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'End Date',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'first_update', 
+											'form_field' => 'first-update',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'First Update',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'last_update', 
+											'form_field' => 'last-update',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Last Date',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'requires_update', 
+											'form_field' => 'requires-update',
+											'input' => 'checkbox',
+											'value' => '',
+											'label' => 'Requires Update',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'start_after_id', 
+											'form_field' => 'start-after-id',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Start After ID',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'lat', 
+											'form_field' => 'lat',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Lat',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'lng', 
+											'form_field' => 'lng',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Long',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'drifting', 
+											'form_field' => 'drifting',
+											'input' => 'checkbox',
+											'value' => '',
+											'label' => 'Drifting',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'download_text', 
+											'form_field' => 'download-text',
+											'input' => 'textarea',
+											'value' => '',
+											'label' => 'Download Text',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'description', 
+											'form_field' => 'description',
+											'input' => 'textarea',
+											'value' => '',
+											'label' => 'Description',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'image', 
+											'form_field' => 'image',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Image URL',
+											'type' => '%s'
+										),
+										array(
+											'field' => 'download_enabled', 
+											'form_field' => 'download-enabled',
+											'input' => 'checkbox',
+											'value' => '1',
+											'label' => 'Download Enabled',
+											'type' => '%d'
+										),
+										array(
+											'field' => 'download_requires_details', 
+											'form_field' => 'download-requires-details',
+											'input' => 'checkbox',
+											'value' => '',
+											'label' => 'Download Requires Details',
+											'type' => '%d'
+										)
+									);
 									
-									// if(isset($_REQUEST['buoy-info'])) {
-									// 	// nonce check
+									if(isset($_REQUEST['buoy-info'])) {
+										// nonce check
 										
-									// 	// Existing
-									// 	if(isset($_REQUEST['hidden-id']) && !empty($_REQUEST['hidden-id'])) {
-									// 		$wpdb->query(
-									// 			$wpdb->prepare("
-									// 				UPDATE {$wpdb->prefix}buoy_info
-									// 				SET `id` = '%s',
-									// 				`aws_label` = '%s',
-									// 				`title` = '%s',
-									// 				`description` = '%s',
-									// 				`buoy_type` = '%s',
-									// 				`visible` = %d,
-									// 				`hide_location` = %d,
-									// 				`custom_lat` = '%s',
-									// 				`custom_lng` = '%s',
-									// 				`image_url` = '%s',
-									// 				`homepage_graph_event_limit` = '%s',
-									// 				`depth` = '%s',
-									// 				`wave_height_increments` = '%s',
-									// 				`buoy_order` = %d,
-									// 				`true_north_offset` = %f,
-									// 				`spotter_token` = '%s',
-									// 				`visibility_options` = '%d',
-									// 				`marker` = '%d'
-									// 				WHERE `id` = %d
-									// 			", 
-									// 				$_REQUEST['tag-buoy-id'], 
-									// 				$_REQUEST['tag-aws-label'],
-									// 				$_REQUEST['tag-title'],
-									// 				$_REQUEST['tag-description'],
-									// 				$_REQUEST['tag-buoy-type'],
-									// 				isset($_REQUEST['tag-enabled']) ? 1 : 0,
-									// 				isset($_REQUEST['tag-hide-location']) ? 1 : 0,
-									// 				isset($_REQUEST['tag-custom-lat']) ? $_REQUEST['tag-custom-lat'] : '',
-									// 				isset($_REQUEST['tag-custom-lng']) ? $_REQUEST['tag-custom-lng'] : '',
-									// 				$_REQUEST['tag-image'],
-									// 				$_REQUEST['tag-intervals'],
-									// 				$_REQUEST['tag-depth'],
-									// 				$_REQUEST['tag-wave-height-increments'],
-									// 				$_REQUEST['tag-buoy-order'],
-									// 				$_REQUEST['tag-true-north-offset'],
-									// 				$_REQUEST['tag-spotter-token'],
-									// 				$_REQUEST['tag-visibility-options'],
-									// 				$_REQUEST['tag-marker'],
-									// 				$_REQUEST['hidden-id']
-									// 			)
-									// 		);
-									// 	}	
-									// 	// New
-									// 	else {
-									// 		$wpdb->insert( 
-									// 			"{$wpdb->prefix}buoy_info", 
-									// 			array( 
-									// 				'id' => $_REQUEST['tag-buoy-id'], 
-									// 				'aws_label' => $_REQUEST['tag-aws-label'],
-									// 				'title' => $_REQUEST['tag-title'],
-									// 				'description' => $_REQUEST['tag-description'],
-									// 				'buoy_type' => $_REQUEST['tag-buoy-type'],
-									// 				'visible' => isset($_REQUEST['tag-enabled']) ? 1 : 0,
-									// 				'hide_location' => isset($_REQUEST['tag-hide-location']) ? 1 : 0,
-									// 				'custom_lat' => isset($_REQUEST['tag-custom-lat']) ? $_REQUEST['tag-custom-lat'] : '', 
-									// 				'custom_lng' => isset($_REQUEST['tag-custom-lng']) ? $_REQUEST['tag-custom-lng'] : '', 
-									// 				'image_url' => $_REQUEST['tag-image'], 
-									// 				'homepage_graph_event_limit' => $_REQUEST['tag-intervals'],
-									// 				'depth' => $_REQUEST['tag-depth'],
-									// 				'wave_height_increments' => $_REQUEST['tag-wave-height-increments'],
-									// 				'buoy_order' => $_REQUEST['tag-buoy-order'],
-									// 				'true_north_offset' => $_REQUEST['tag-true-north-offset'], 
-									// 				'spotter_token' => $_REQUEST['tag-spotter-token'],
-									// 				'visibility_options' => $_REQUEST['tag-visibility-options'],
-									// 				'marker' => $_REQUEST['tag-marker']
-									// 			), 
-									// 			array( 
-									// 				'%s', 
-									// 				'%s',
-									// 				'%s', 
-									// 				'%s',
-									// 				'%s',
-									// 				'%d',
-									// 				'%d',
-									// 				'%s', 
-									// 				'%s', 
-									// 				'%s', 
-									// 				'%s', 
-									// 				'%d',
-									// 				'%s',
-									// 				'%d',
-									// 				'%f',
-									// 				'%s',
-									// 				'%d',
-									// 				'%d'
-									// 			) 
-									// 		);
-									// 	}
-										
-									// }
-									// else if(isset($_REQUEST['action'])) {
-										
-									// 	if($_REQUEST['action'] === 'edit' && $_REQUEST['buoy']) {										
-									// 		$buoy = $wpdb->get_row(
-									// 			$wpdb->prepare("SELECT * FROM {$wpdb->prefix}buoy_info WHERE id = %d", $_REQUEST['buoy'])
-									// 		);
+										// Existing
+										if(isset($_REQUEST['hidden-id']) && !empty($_REQUEST['hidden-id'])) {
 											
-									// 		$form_data = array(
-									// 			'id' => $buoy->id,
-									// 			'id' => $buoy->id,
-									// 			'aws_label' => $buoy->aws_label,
-									// 			'title' => $buoy->title,
-									// 			'description' => $buoy->description,
-									// 			'buoy_type' => $buoy->buoy_type,
-									// 			'visible' => $buoy->visible,
-									// 			'hide_location' => $buoy->hide_location,
-									// 			'custom_lat' => $buoy->custom_lat,
-									// 			'custom_lng' => $buoy->custom_lng,
-									// 			'image_url' => $buoy->image_url,
-									// 			'homepage_graph_event_limit' => $buoy->homepage_graph_event_limit,
-									// 			'depth' => $buoy->depth,
-									// 			'wave_height_increments' => $buoy->wave_height_increments,
-									// 			'buoy_order' => $buoy->buoy_order,
-									// 			'true_north_offset' => $buoy->true_north_offset,
-									// 			'spotter_token' => $buoy->spotter_token,
-									// 			'visibility_options' => $buoy->visibility_options,
-									// 			'marker' => $buoy->marker
-									// 		);		
+											$data = array();
+											$where = array( 'id' => $_REQUEST['buoy'] );
+											$format = array();
+											$where_format = array( '%d' );
+
+											// Add each value
+											foreach( $fields as $field ) {
+												switch ($field['input']) {
+													case 'checkbox':
+														$value = ( $_REQUEST[$field['form_field']] == "1" ) ? 1 : 0;
+														break;
+													default:
+														$value = $_REQUEST[$field['form_field']];
+														break;
+												}
+												$data[$field['field']] = $value;
+												array_push( $format, $field['type'] );
+											}
+
+											$wpdb->update( 
+												"{$wpdb->prefix}waf_buoys",
+												$data,
+												$where,
+												$format,
+												$where_format
+											);
+										}	
+										// New
+										else {
+
+										}
+									}
+									else if(isset($_REQUEST['action'])) {
+										
+										if($_REQUEST['action'] === 'edit' && $_REQUEST['buoy']) {										
+											// Grab buoy info
+											$buoy = $wpdb->get_row(
+												$wpdb->prepare("SELECT * FROM {$wpdb->prefix}waf_buoys WHERE id = %d", $_REQUEST['buoy']),
+												'ARRAY_A'
+											);
+
+											// Transfer into fields values
+											array_walk( $fields, function( &$field, $key, $buoy ) {
+												if( isset( $buoy[ $field['field'] ] ) ) {
+													$field['value'] = $buoy[ $field['field'] ];
+												}
+											}, $buoy );
 											
-									// 		$title = 'Edit Existing Buoy';
-									// 	}
-									// }
+											$title = 'Edit Existing Buoy';
+										}
+									}
 									
 									// Form
+									$form_data = array();
+
 								?>
 								<h2><?php print $title; ?></h2>
 								<form method="post">
 									<input type="hidden" name="buoy-info" value="1">
-									<input type="hidden" name="hidden-id" value="<?php print (isset($form_data['id'])) ? $form_data['id'] : ''; ?>"> 
-									<div class="form-field form-required term-buoy-id-wrap">
-										<label for="tag-buoy-id">ID</label>
-										<input name="tag-buoy-id" id="tag-buoy-id" type="text" value="<?php print (isset($form_data['id'])) ? $form_data['id'] : ''; ?>" size="40" aria-required="true">
-										<p>ID Used by Buoy Provider</p>
-									</div>
-									<div class="form-field form-required term-buoy-aws-label-wrap">
-										<label for="tag-aws-label">AWS Label</label>
-										<input name="tag-aws-label" id="tag-aws-label" type="text" value="<?php print (isset($form_data['aws_label'])) ? $form_data['aws_label'] : ''; ?>" size="40" aria-required="true">
-										<p>Root folder of AWS files (I.e. TorbayInshore)</p>
-									</div>
-									<div class="form-field form-required term-title-wrap">
-										<label for="tag-title">Title</label>
-										<input name="tag-title" id="tag-title" type="text" value="<?php print (isset($form_data['title'])) ? $form_data['title'] : ''; ?>" size="40" aria-required="true">
-										<!-- <p></p> -->
-									</div>
-									<div class="form-field form-required term-description-wrap">
-										<label for="tag-description">Description</label>
-										<textarea name="tag-description" id="tag-description" aria-required="true"><?php print (isset($form_data['description'])) ? $form_data['description'] : ''; ?></textarea>
-										<!-- <p></p> -->
-									</div>
-									<div class="form-field form-required term-depth-wrap">
-										<label for="tag-depth">Depth (Metres)</label>
-										<input name="tag-depth" id="tag-depth" type="text" value="<?php print (isset($form_data['depth'])) ? $form_data['depth'] : ''; ?>" size="40" aria-required="true">
-										<!-- <p></p> -->
-									</div>
-									<div class="form-field form-required term-buoy-type">
-										<label for="tag-buoy-type">Buoy Type</label>
-										<select name="tag-buoy-type" id="tag-buoy-type">
-											<option value=''>Select a buoy type</option>
-											<option value="datawell" <?php selected($form_data['buoy_type'], 'datawell'); ?>>Datawell</option>
-											<option value="spoondrift" <?php selected($form_data['buoy_type'], 'spoondrift'); ?>>Spotter (Spoondrift)</option>
-											<option value="triaxy" <?php selected($form_data['buoy_type'], 'triaxy'); ?>>Triaxy</option>
-										</select>
-										<!-- <p></p> -->
-									</div>
-									<div class="form-field form-required term-spotter-token-wrap">
-										<label for="tag-spotter-token">Spotter Token</label>
-										<input name="tag-spotter-token" id="tag-spotter-token" type="text" value="<?php print (isset($form_data['spotter_token'])) ? $form_data['spotter_token'] : ''; ?>"  size="40" aria-required="true">
-										<p><strong>Spotter only</strong>. This allows the site to request buoy wind data from the Spotter API.</p>
-									</div>
-									<div class="form-field form-required term-enabled-wrap">
-										<label for="tag-enabled">Show Buoy</label>
-										<input name="tag-enabled" id="tag-enabled" type="checkbox" value="1" <?php print (isset($form_data['visible'])) ? checked($form_data['visible']) : ''; ?> size="40" aria-required="true">
-										<p>Unchecking this box will hide the buoy on the website.</p>
-									</div>
-									<?php $visibility_options = (isset($form_data['visibility_options'])) ? intval($form_data['visibility_options']) : 0; ?>
-									<div class="form-field form-required term-enabled-wrap">
-										<label for="tag-visibility-options">Visibility Options</label>
-										<p>
-											<input name="tag-visibility-options" id="tag-visibility-options-all" type="radio" value="0" <?php checked(0, $visibility_options, true); ?> aria-required="true">
-											<label style="display: inline;" for="tag-visibility-options-all">Show both</label>
-										</p>
-										<p>
-											<input name="tag-visibility-options" id="tag-visibility-options-map" type="radio" value="1" <?php checked(1, $visibility_options, true); ?> aria-required="true">
-											<label style="display: inline;" for="tag-visibility-options-map">Map only</label>
-										</p>
-										<p>
-											<input name="tag-visibility-options" id="tag-visibility-options-list" type="radio" value="2" <?php checked(2, $visibility_options, true); ?> aria-required="true">
-											<label style="display: inline;" for="tag-visibility-options-list">List only</label>
-										</p>
-									</div>
-									<?php $marker = (isset($form_data['marker'])) ? intval($form_data['marker']) : 0; ?>
-									<div class="form-field form-required term-enabled-wrap">
-										<label for="tag-marker">Map Marker</label>
-										<p>
-											<input name="tag-marker" id="tag-marker-default" type="radio" value="0" <?php checked(0, $marker, true); ?> aria-required="true">
-											<label style="display: inline;" for="tag-marker-default">Default</label>
-										</p>
-										<p>
-											<input name="tag-marker" id="tag-marker-decommissioned" type="radio" value="1" <?php checked(1, $marker, true); ?> aria-required="true">
-											<label style="display: inline;" for="tag-marker-decommissioned">Decommisioned</label>
-										</p>
-									</div>
-									<div class="form-field form-required term-hide-location-wrap">
-										<label for="tag-hide-location">Hide Location</label>
-										<input name="tag-hide-location" id="tag-hide-location" type="checkbox" value="1" <?php print (isset($form_data['hide_location'])) ? checked($form_data['hide_location']) : ''; ?> size="40" aria-required="true">
-										<p>Hide LAT/LNG on the sites frontend.</p>
-									</div>
-									<div class="form-required term-custom-lat-lng-wrap">
-										<label for="tag-custom-lat">Custom LAT/LNG</label>
-										<input name="tag-custom-lat" id="tag-custom-lat" type="text" value="<?php print (isset($form_data['custom_lat'])) ? $form_data['custom_lat'] : ''; ?>" class="small-text" size="5" aria-required="true"> , 
-										<input name="tag-custom-lng" id="tag-custom-lng" type="text" value="<?php print (isset($form_data['custom_lng'])) ? $form_data['custom_lng'] : ''; ?>" class="small-text" size="5" aria-required="true">
-										<p>Override buoy info LAT/LNG</p>
-									</div>
-									<div class="form-field form-required term-true-north-offset">
-										<label for="tag-true-north-offset">True North Offset <small>Deg</small></label>
-										<input name="tag-true-north-offset" id="tag-true-north-offset" type="text" value="<?php print (isset($form_data['true_north_offset'])) ? $form_data['true_north_offset'] : ''; ?>" size="40" aria-required="true">
-									</div>
-									<div class="form-field form-required term-wave-height-increments">
-										<label for="tag-wave-height-increments">Wave Height Increments (m) <small>Comma Separated</small></label>
-										<input name="tag-wave-height-increments" id="tag-wave-height-increments" type="text" value="<?php print (isset($form_data['wave_height_increments'])) ? $form_data['wave_height_increments'] : ''; ?>" size="40" aria-required="true">
-									</div>
-									<div class="form-field form-required term-intervals-wrap">
-										<label for="tag-intervals">Homepage Graph Event Limit</label>
-										<input name="tag-intervals" id="tag-intervals" type="text" value="<?php print (isset($form_data['homepage_graph_event_limit'])) ? $form_data['homepage_graph_event_limit'] : ''; ?>" size="40" aria-required="true">
-										<p>Number of ticks on homepage graph</p>
-									</div>
-									<div class="form-field form-required term-image-wrap">
-										<label for="tag-image">Image</label>
-										<input name="tag-image" id="tag-image" type="text" value="<?php print (isset($form_data['image_url'])) ? $form_data['image_url'] : ''; ?>" size="40" aria-required="true">
-									</div>
-									<div class="form-field form-required term-buoy-order-wrap">
-										<label for="tag-buoy-order">Buoy Order</label>
-										<input name="tag-buoy-order" id="tag-buoy-order" type="text" value="<?php print (isset($form_data['buoy_order'])) ? $form_data['buoy_order'] : ''; ?>" size="40" aria-required="true">
-										<p>Order of appearance on homepage listing</p>
-									</div>
-									<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="<?php print (isset($form_data['id'])) ? 'Update Buoy' : 'Add New Buoy'; ?>"></p>
+									<input type="hidden" name="hidden-id" value="<?php print ( isset( $_REQUEST['buoy'] ) ) ? $_REQUEST['buoy'] : ''; ?>"> 
+									<?php 
+										foreach( $fields as $field ) {
+											print '<div class="form-field form-required ' . $field['form_field'] . '">';
+												print '<label for="' . $field['form_field'] . '">' . $field['label'] . '</label>';
+												$value = $field['value']; // isset( $form_data[ $field['field'] ] ) ? $form_data[ $field['field'] ] : $field['default'];
+												switch ($field['input']) {
+													case 'checkbox':
+														print '<input name="' . $field['form_field'] . '" id="' . $field['form_field'] . '" type="checkbox" ' . checked( 1, $value, false ) . ' value="1">';
+														break;
+													case 'textarea':
+														print '<textarea name="' . $field['form_field'] . '" id="' . $field['form_field'] . '" rows="5" cols="40">' . $value . '</textarea>';
+														break;
+													default:
+														print '<input name="' . $field['form_field'] . '" id="' . $field['form_field'] . '" type="text" value="' . $value . '" size="40" aria-required="true">';
+														break;
+												}
+											print '</div>';
+										}
+									?>
+									<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="<?php print ( isset( $_REQUEST['buoy'] ) ) ? 'Update Buoy' : 'Add New Buoy'; ?>"></p>
 								</form>
 							</div>
 						</div>

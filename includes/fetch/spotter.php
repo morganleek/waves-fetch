@@ -178,6 +178,12 @@
 						$buoy->id
 					)
 				);
+
+				// Check for null values for new buoys
+				if( $last_update_timestamp == null ) {
+					$last_update_timestamp = 0;
+				}
+
 				$last_update = waf_spotter_epoch_to_ISO8601( $last_update_timestamp );
 
 				$params = array(
@@ -334,7 +340,7 @@
 		return date( "U", strtotime( $time ) );
 	}
 
-	function waf_spotter_epoch_to_ISO8601( $time ) {
+	function waf_spotter_epoch_to_ISO8601( $time ) {	
 		return date_format( date_create( '@'. $time ), 'c' );	
 	}
 

@@ -18,6 +18,12 @@
 			'waf_refresh',
 			'waf_sanitize_options_refresh'
 		);
+
+		register_setting(
+			'waf-buoy-options-migrate',
+			'waf_migrate',
+			'waf_sanitize_options_migrate'
+		);
 	}
 
 	function waf_sanitize_options( $option ) {
@@ -40,6 +46,79 @@
 			add_settings_error( 'waf-buoy-options-refresh', 'waf-success', __( 'Processing buoy #' . $id, 'wporg' ), 'success' );
 		} 
 		
+		return $option;
+	}
+
+	function waf_sanitize_options_migrate( $option ) {
+		if( 
+			empty( $option['waf_migrate_from'] ) || 
+			empty( $option['waf_migrate_to'] ) || 
+			empty( $option['waf_start_date'] ) || 
+			empty( $option['waf_end_date'] ) ) {
+				// Missing data
+				add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( 'Missing require fields', 'wporg' ), 'error' );
+				return $option;
+		}
+
+		// Extract Option Values
+		extract( $option );
+
+		// Check Buoys
+		if( $waf_migrate_from == $waf_migrate_to ) {
+			// Same Buoys
+			add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( 'Select different buoys', 'wporg' ), 'error' );
+			return $option;
+		}
+
+		// Convert to datetime
+		$waf_start_datetime = strtotime( $waf_start_date );
+		$waf_end_datetime = strtotime( $waf_end_date );
+		
+		// Check Date
+		if( $waf_end_datetime < $waf_start_datetime ) {
+			// End before the start
+			add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( 'Your end date is before your start date', 'wporg' ), 'error' );
+			return $option;
+		}
+		
+		global $wpdb;
+
+		// Get number of effected items
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) 
+				FROM `{$wpdb->prefix}waf_wave_data` 
+				WHERE `buoy_id` = %d 
+				AND `timestamp` >= %d 
+				AND `timestamp` <= %d",
+				$waf_migrate_from,
+				$waf_start_datetime,
+				$waf_end_datetime
+			)
+		);
+		
+		// Do it as a test
+		if( isset( $_REQUEST['test'] ) ) {
+			add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( 'This will effect ' . $count . ' items', 'wporg' ), 'success' );
+		}
+		// Do it for real
+		else {
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->prefix}waf_wave_data
+					SET `buoy_id` = %d
+					WHERE `buoy_id` = %d
+					AND `timestamp` >= %d
+					AND `timestamp` <= %d",
+					$waf_migrate_to,
+					$waf_migrate_from,
+					$waf_start_datetime,
+					$waf_end_datetime
+				)
+			);
+
+			add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( $count . ' data points updated', 'wporg' ), 'success' );
+		}
 		return $option;
 	}
 

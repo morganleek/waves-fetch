@@ -20,6 +20,16 @@
 			'waf_options_page_refresh_html', 
 			2 
 		);
+
+		add_submenu_page( 
+			'waf', 
+			'Migrate', 
+			'Migrate', 
+			'manage_options', 
+			'migrate', 
+			'waf_options_page_migrate_html', 
+			2 
+		);
 	}
 
 	// Hooks
@@ -193,6 +203,66 @@
 	// 	<?php
 	// }
 	*/
+
+	// Migrate Buoy Data
+	function waf_options_page_migrate_html() {
+		if (!current_user_can('manage_options')) {
+			return;
+		}
+
+		global $wpdb;
+		$buoys = $wpdb->get_results("
+			SELECT * FROM {$wpdb->prefix}waf_buoys
+			ORDER BY `web_display_name`
+		");
+
+		$buoys_select = '';
+		if( $buoys ) {
+			foreach( $buoys as $buoy ) {
+				$buoys_select .= '<option value="' . $buoy->id . '">';
+				$buoys_select .= $buoy->web_display_name . " &mdash; " . $buoy->id;
+				$buoys_select .= '</option>';
+			}
+		}
+
+		// Messages
+		settings_errors( 'waf-buoy-options-migrate' );
+		?>
+			<div class="wrap">
+				<h1><?= esc_html(get_admin_page_title()); ?></h1>
+				<form method="post" action="options.php"> 
+					<?php
+						settings_fields( 'waf-buoy-options-migrate' ); 
+						do_settings_sections( 'waf-buoy-options-migrate' );
+					?>
+					<table class="form-table">
+						<tbody>
+							<tr>
+								<th scope="row"><label for="">From Buoy</label></th>
+								<td><select name="waf_migrate[waf_migrate_from]"><?php print $buoys_select; ?></select></td>
+							</tr>
+							<tr>
+								<th scope="row"><label for="">To Buoy</label></th>
+								<td><select name="waf_migrate[waf_migrate_to]"><?php print $buoys_select; ?></select></td>
+							</tr>
+							<tr>
+								<th scope="row"><label for="">Start Date</label></th>
+								<td><input name="waf_migrate[waf_start_date]" id="waf_start_date" type="datetime-local" value=""></td>
+							</tr>
+							<tr>
+								<th scope="row"><label for="">End Date</label></th>
+								<td><input name="waf_migrate[waf_end_date]" id="waf_end_date" type="datetime-local" value=""></td>
+							</tr>
+						</tbody>
+					</table>
+					<p class="sumit">
+						<?php submit_button( 'Test', 'secondary', 'test', false ); ?>
+						<?php submit_button( 'Migrate', 'primary', 'submit', false ); ?>
+					</p>
+				</form>
+			</div>
+		<?php
+	}
 
 	// Refresh a Buoy
 	function waf_options_page_refresh_html() {
