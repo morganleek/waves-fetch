@@ -236,7 +236,7 @@
 					'type' => $r['type'],
 					'is_enabled' => intval( $r['enabled'] ),
 					'menu_order' => intval( $r['order'] ),
-					'data' => $r['data'],
+					'data' => isset( $r['data'] ) ? $r['data'] : '',
 					'start_date' => $r['start_date'],
 					'end_date' => $r['end_date'],
 					'first_update' => $r['first_updated'],
