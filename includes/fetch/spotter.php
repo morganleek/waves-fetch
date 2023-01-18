@@ -69,7 +69,7 @@
 						$wpdb->prefix . "waf_buoys",
 						array(
 							'id' => $key,
-							'label' => $buoy['name'],
+							'label' => $buoy['spotterId'],
 							'is_enabled' => 1,
 							'start_date' => 0,
 							'end_date' => 0,
@@ -108,7 +108,8 @@
 		// Check most recent for each
 		if( $buoys ) {
 			foreach( $buoys as $buoy ) {
-				$spotterId = sprintf( "SPOT-%04d", $buoy->id ) ;
+				// $spotterId = sprintf( "SPOT-%04d", $buoy->id ) ;
+				$spotterId = $buoy->label;
 				
 				// CURL Latest data
 				$response = waf_spotter_curl_request( array( 
@@ -163,7 +164,8 @@
 
 		if( $buoys ) {
 			foreach( $buoys as $buoy ) {
-				$spotterId = sprintf( "SPOT-%04d", $buoy->id ) ;
+				// $spotterId = sprintf( "SPOT-%04d", $buoy->id ) ;
+				$spotterId = $buoy->label;
 
 				// Fetch last update from buoys list
 				// $last_update = waf_spotter_epoch_to_ISO8601( $buoy->last_update );
