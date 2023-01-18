@@ -37,7 +37,7 @@
 				$spotterId = $device->spotterId;
 				// Regex the ID
 				$match = [];
-				preg_match( '/(?:SPOT-)(.*)/', $spotterId, $match );
+				preg_match( '/(?:SPOT-)([0-9]*)/', $spotterId, $match ); // Capture only the number
 				if( sizeof( $match ) == 2 ) {
 					// Push ID as int to array
 					$buoys[ intval( $match[1] ) ] = array(
