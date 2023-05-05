@@ -138,7 +138,7 @@
 		}
 		return array(
 			'success' => intval( $has_results ),
-			'buoy_id' => $id,
+			'buoy_id' => $_args['id'],
 			'data' => $data
 		);
 	}

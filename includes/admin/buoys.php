@@ -103,7 +103,18 @@
 				// 	}
 				// 	return 'N/A';
 				case 'is_enabled':
-					return ($item[ 'is_enabled' ] == 1) ? 'Yes' : 'No';
+					switch ( $item[ 'is_enabled' ] ) {
+						case 0:
+							return 'Disabled';
+						case 1:
+							return 'Enabled';
+						case 2: 
+							return 'Historic';
+						default:
+							return 'Disabled';
+					}
+
+					// return ( $item[ 'is_enabled' ] == 3 ) ? 'Historic' : ( ($item[ 'is_enabled' ] == 1) ? 'Enabled' : 'Disabled' );
 				// case 'hide_location':
 				// 	return ($item[ $column_name ] == 1) ? 'Yes' : 'No';
 				default:
@@ -158,7 +169,7 @@
 				'name'    => __( 'ID', 'waves-fetch' ),
 				'web_display_name' => __( 'Web Display Name' ),
 				'label' => __( 'Label', 'waves-fetch' ),
-				'is_enabled'    => __( 'Visible', 'waves-fetch' ),
+				'is_enabled'    => __( 'Status', 'waves-fetch' ),
 				'last_update' => 'Last Update'
 			];
 
@@ -174,7 +185,9 @@
 		public function get_sortable_columns() {
 			$sortable_columns = array(
 				'name' => array('id', true),
-				'label' => array('Label', true),
+				'label' => array('label', true),
+				'web_display_name' => array( 'web_display_name', true ),
+				'is_enabled' => array( 'is_enabled', true )
 				// 'buoy_order' => array( 'buoy_order', true )
 				// 'city' => array( 'city', false )
 			);
@@ -410,10 +423,15 @@
 										array(
 											'field' => 'is_enabled', 
 											'form_field' => 'is-enabled',
-											'input' => 'checkbox',
+											'input' => 'select',
 											'value' => '',
 											'label' => 'Is enabled',
-											'type' => '%d'
+											'type' => '%d',
+											'options' => array(
+												'Disabled',
+												'Enabled',
+												'Historic'
+											)
 										),
 										array(
 											'field' => 'menu_order', 
@@ -562,6 +580,7 @@
 													case 'checkbox':
 														$value = ( $_REQUEST[$field['form_field']] == "1" ) ? 1 : 0;
 														break;
+													case 'select':
 													default:
 														$value = $_REQUEST[$field['form_field']];
 														break;
@@ -617,6 +636,13 @@
 												print '<label for="' . $field['form_field'] . '">' . $field['label'] . '</label>';
 												$value = $field['value']; // isset( $form_data[ $field['field'] ] ) ? $form_data[ $field['field'] ] : $field['default'];
 												switch ($field['input']) {
+													case 'select':
+														print '<select name="' . $field['form_field'] . '" id="' . $field['form_field'] . '">';
+															foreach( $field['options'] as $k => $v ) {
+																print '<option ' . selected( $k, $field['value'], false ) . ' value="' . $k . '">' . $v . '</option>';
+															}
+														print '</select>';
+														break;
 													case 'checkbox':
 														print '<input name="' . $field['form_field'] . '" id="' . $field['form_field'] . '" type="checkbox" ' . checked( 1, $value, false ) . ' value="1">';
 														break;
