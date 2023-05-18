@@ -56,7 +56,7 @@
 			empty( $option['waf_start_date'] ) || 
 			empty( $option['waf_end_date'] ) ) {
 				// Missing data
-				add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( 'Missing require fields', 'wporg' ), 'error' );
+				add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( 'Missing required fields', 'wporg' ), 'error' );
 				return $option;
 		}
 
@@ -100,6 +100,12 @@
 		// Do it as a test
 		if( isset( $_REQUEST['test'] ) ) {
 			add_settings_error( 'waf-buoy-options-migrate', 'waf-success', __( 'This will effect ' . $count . ' items', 'wporg' ), 'success' );
+			add_settings_error( 'waf-buoy-options-migrate', 'waf-migrate-test', array(
+				'waf_migrate_from' => $waf_migrate_from,
+				'waf_migrate_to' => $waf_migrate_to,
+				'waf_start_date' => $waf_start_date,
+				'waf_end_date' => $waf_end_date
+			), 'data' );
 		}
 		// Do it for real
 		else {

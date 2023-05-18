@@ -9,6 +9,8 @@
 	require_once( WAF__PLUGIN_DIR . 'includes/admin/cache.php' );
 	// Manage Buoys
 	require_once( WAF__PLUGIN_DIR . 'includes/admin/buoys.php' );
+	// Chart Buoy Data
+	require_once( WAF__PLUGIN_DIR . 'includes/admin/charts.php' );
 
 
 	function waf_check_version() {

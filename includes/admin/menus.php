@@ -30,6 +30,16 @@
 			'waf_options_page_migrate_html', 
 			2 
 		);
+
+		add_submenu_page( 
+			'waf', 
+			'Charts', 
+			'Charts', 
+			'manage_options', 
+			'charts', 
+			'waf_options_page_charts_html', 
+			2 
+		);
 	}
 
 	// Hooks
@@ -204,12 +214,7 @@
 	// }
 	*/
 
-	// Migrate Buoy Data
-	function waf_options_page_migrate_html() {
-		if (!current_user_can('manage_options')) {
-			return;
-		}
-
+	function waf_buoys_select_list( $selected = 0 ) {
 		global $wpdb;
 		$buoys = $wpdb->get_results("
 			SELECT * FROM {$wpdb->prefix}waf_buoys
@@ -219,14 +224,41 @@
 		$buoys_select = '';
 		if( $buoys ) {
 			foreach( $buoys as $buoy ) {
-				$buoys_select .= '<option value="' . $buoy->id . '">';
+				$buoys_select .= '<option value="' . $buoy->id . '" ' . selected( $selected, $buoy->id, false ) . '>';
 				$buoys_select .= $buoy->web_display_name . " &mdash; " . $buoy->id;
 				$buoys_select .= '</option>';
 			}
 		}
 
+		return $buoys_select;
+	}
+
+	// Migrate Buoy Data
+	function waf_options_page_migrate_html() {
+		if (!current_user_can('manage_options')) {
+			return;
+		}
+
+		// Defaults
+		$waf_start_date = "";
+		$waf_end_date = "";
+		$waf_migrate_from = 0;
+		$waf_migrate_to = 0;
+
 		// Messages
 		settings_errors( 'waf-buoy-options-migrate' );
+
+		$returned_data = get_settings_errors( 'waf-buoy-options-migrate' );
+		
+		foreach( $returned_data as $data ) {
+			if( $data['code'] == 'waf-migrate-test' ) {
+				$waf_migrate_from = $data['message']['waf_migrate_from'];
+				$waf_migrate_to = $data['message']['waf_migrate_to'];
+				$waf_start_date = $data['message']['waf_start_date'];
+				$waf_end_date = $data['message']['waf_end_date'];
+			}
+		}
+		
 		?>
 			<div class="wrap">
 				<h1><?= esc_html(get_admin_page_title()); ?></h1>
@@ -239,19 +271,19 @@
 						<tbody>
 							<tr>
 								<th scope="row"><label for="">From Buoy</label></th>
-								<td><select name="waf_migrate[waf_migrate_from]"><?php print $buoys_select; ?></select></td>
+								<td><select name="waf_migrate[waf_migrate_from]"><?php print waf_buoys_select_list( $waf_migrate_from ); ?></select></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="">To Buoy</label></th>
-								<td><select name="waf_migrate[waf_migrate_to]"><?php print $buoys_select; ?></select></td>
+								<td><select name="waf_migrate[waf_migrate_to]"><?php print waf_buoys_select_list( $waf_migrate_to ); ?></select></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="">Start Date</label></th>
-								<td><input name="waf_migrate[waf_start_date]" id="waf_start_date" type="datetime-local" value=""></td>
+								<td><input name="waf_migrate[waf_start_date]" id="waf_start_date" type="datetime-local" value="<?php print $waf_start_date; ?>"></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="">End Date</label></th>
-								<td><input name="waf_migrate[waf_end_date]" id="waf_end_date" type="datetime-local" value=""></td>
+								<td><input name="waf_migrate[waf_end_date]" id="waf_end_date" type="datetime-local" value="<?php print $waf_end_date; ?>"></td>
 							</tr>
 						</tbody>
 					</table>
