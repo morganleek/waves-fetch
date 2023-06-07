@@ -7,24 +7,34 @@
 	// List Buoys
 	function waf_rest_list_buoys( $id = 0 ) {
 		global $wpdb;
+		
+		// Check for cached data
+		$cached = wp_cache_get( 'list_buoys', 'waf_rest' );
 
-		// All buoys
-		$query = "SELECT *, UNIX_TIMESTAMP() AS `now` 
-		FROM {$wpdb->prefix}waf_buoys
-		WHERE `is_enabled` != 0";
-		// Specific buoy
-		if( $id != 0 ) {
-			$query = $wpdb->prepare(
-				$query . " AND `id` = %d",
-				$id
-			);
+		if( $cached === false ) {
+			// All buoys
+			$query = "SELECT *, UNIX_TIMESTAMP() AS `now` 
+			FROM {$wpdb->prefix}waf_buoys
+			WHERE `is_enabled` != 0";
+			// Specific buoy
+			if( $id != 0 ) {
+				$query = $wpdb->prepare(
+					$query . " AND `id` = %d",
+					$id
+				);
+			}
+			// Order by Menu Order
+			$query = $query . " ORDER BY `menu_order`";
+			// Get buoys
+			$buoys = $wpdb->get_results( $query );
+			// Cache results for 5 minutes
+			wp_cache_set( 'list_buoys', $buoys, 'waf_rest', 300 );
+			// Return JSON
+			return json_encode( $buoys );
 		}
-		// Order by Menu Order
-		$query = $query . " ORDER BY `menu_order`";
-		// Get buoys
-		$buoys = $wpdb->get_results( $query );
-		// Return JSON
-		return json_encode( $buoys );
+		else { // Cached results
+			return json_encode( $cached );
+		}
 	}
 	
 	function waf_rest_list_buoys_ajax( ) {
@@ -166,7 +176,17 @@
 			$end = intval( $_REQUEST['end'] );
 		}
 
-		print waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'order' => 'DESC' ) );
+		// Check for cached data
+		$datapoints = wp_cache_get( "list_buoy_datapoints_{$id}_{$start}_{$end}_waf_wave_data", 'waf_rest' );
+		
+		if( $datapoints === false ) {
+			// Fetch fresh
+			$datapoints = waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'order' => 'DESC' ) );
+			// Cache results for 5 minutes
+			wp_cache_set( "list_buoy_datapoints_{$id}_{$start}_{$end}_waf_wave_data", $datapoints, 'waf_rest', 300 );
+		}
+		print $datapoints;
+
 		wp_die();
 	}
 
@@ -197,7 +217,16 @@
 			$end = intval( $_REQUEST['end'] );
 		}
 
-		$data_points = waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'json' => false, 'order' => 'ASC' ) );
+		// Check for cached data
+		$datapoints = wp_cache_get( "list_buoy_datapoints_{$id}_{$start}_{$end}_waf_wave_data_csv", 'waf_rest' );
+		
+		if( $datapoints === false ) {
+			// No cache fetch fresh
+			$data_points = waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'json' => false, 'order' => 'ASC' ) );
+
+			// Cache results for 5 minutes
+			wp_cache_set( "list_buoy_datapoints_{$id}_{$start}_{$end}_waf_wave_data_csv", $datapoints, 'waf_rest', 300 );
+		}
 		
 		if( isset( $data_points['data'] ) ) {
 			$csv_rows = [];
@@ -280,7 +309,19 @@
 		if( isset( $_REQUEST['id'] ) ) {
 			$id = intval( $_REQUEST['id'] ); 
 		}
-		print waf_rest_list_buoys_drifting( $id );
+
+		// Check for cached data
+		$buoy = wp_cache_get( "list_buoys_drifting_{$id}", 'waf_rest' );
+
+		if( $buoy === false ) {
+			// Fetch fresh data
+			$buoy = waf_rest_list_buoys_drifting( $id );
+			
+			// Cache results for 5 minutes
+			wp_cache_set( "list_buoys_drifting_{$id}", $buoy, 'waf_rest', 300 );
+		}
+
+		print $buoy;
 		wp_die();
 	}
 
@@ -310,15 +351,26 @@
 			$end = intval( $_REQUEST['end'] );
 		}
 
-		print waf_rest_list_buoy_datapoints( 
-			array( 
-				'id' => $id, 
-				'start' => $start, 
-				'end' => $end, 
-				'table' => $wpdb->prefix . 'waf_wave_memplots',
-				'order' => 'DESC'
-			) 
-		);
+		// Check for cached version 
+		$datapoints = wp_cache_get( "list_buoys_memplots_{$id}_{$start}_{$end}", 'waf_rest' );
+		
+		if( $datapoints === false ) {
+			// Fetch fresh data
+			$datapoints = waf_rest_list_buoy_datapoints( 
+				array( 
+					'id' => $id, 
+					'start' => $start, 
+					'end' => $end, 
+					'table' => $wpdb->prefix . 'waf_wave_memplots',
+					'order' => 'DESC'
+				) 
+			);
+			// Cache results for 5 minutes
+			wp_cache_set( "list_buoys_memplots_{$id}_{$start}_{$end}", $datapoints, 'waf_rest', 300 );
+		}
+
+		print $datapoints;
+
 		wp_die();
 	}
 
