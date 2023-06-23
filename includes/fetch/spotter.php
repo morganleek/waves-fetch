@@ -42,7 +42,7 @@
 					// Push ID as int to array
 					$buoys[ intval( $match[1] ) ] = array(
 						'spotterId' => $spotterId,
-						'name' => $name
+						'name' => !empty( $name ) ? $name : '...'
 					);
 				}
 			}
