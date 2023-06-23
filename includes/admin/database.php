@@ -18,7 +18,7 @@
 		// Buoys
 		$table_name = $wpdb->prefix . "waf_buoys";
 		$sql = "CREATE TABLE $table_name (
-		  id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
 			label VARCHAR(1024) NOT NULL,
 			web_display_name VARCHAR(255) NOT NULL,
 			type VARCHAR(255) NOT NULL,
@@ -38,8 +38,8 @@
 			description TEXT NOT NULL,
 			image VARCHAR(255) NOT NULL,
 			download_enabled MEDIUMINT(9) DEFAULT 1 NOT NULL,
-			download_requires_details MEDIUMINT(9) DEFAULT 0 NOT NULL
-		  PRIMARY KEY  (id)
+			download_requires_details MEDIUMINT(9) DEFAULT 0 NOT NULL,
+			PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
 
