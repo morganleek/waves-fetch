@@ -16,3 +16,5 @@
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/cache.php' );
 	// Spotter Wave Data
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/spotter.php' );
+	// Local CSV Wave Data
+	require_once( WAF__PLUGIN_DIR . 'includes/fetch/local.php' );

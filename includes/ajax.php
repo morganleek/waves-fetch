@@ -403,3 +403,13 @@
 	add_action( 'wp_ajax_waf_spotter_fetch_updates', 'waf_spotter_fetch_updates_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_spotter_fetch_updates', 'waf_spotter_fetch_updates_ajax' );
 	
+
+	// Local AJAX
+
+	function waf_local_fetch_updates_ajax() {
+		waf_local_fetch_updates();
+
+		wp_die();
+	}
+	add_action( 'wp_ajax_waf_local_fetch_updates', 'waf_local_fetch_updates_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_local_fetch_updates', 'waf_local_fetch_updates_ajax' );

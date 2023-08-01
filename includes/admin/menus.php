@@ -48,6 +48,36 @@
 	//
 	// Menu HTML
 	//
+	function waf_settings_table( $label, $fields, $values, $return = false ) {
+		$html = '';
+
+		$html .= '<table class="form-table">';
+			$html .= '<tbody>';
+				foreach( $fields as $field ) {
+					$html .= '<tr>';
+						$html .= '<th scope="row"><label for="' . $label . '[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
+						$html .= '<td>';
+							switch( $field['type'] ) {
+								case 'checkbox':
+									$html .= '<input name="' . $label . '[' . $field['name'] . ']" type="checkbox" id="' . $label . '[' . $field['name'] . ']" value="1" ' . checked( $values[$field['name']], '1', false ) . ' class="regular-text">';
+									break;
+								case 'text':
+								default:
+									$html .= '<input name="' . $label . '[' . $field['name'] . ']" type="text" id="' . $label . '[' . $field['name'] . ']" value="' . esc_attr( isset( $values[$field['name']] ) ? $values[$field['name']] : '' ) . '" class="regular-text">';
+									break;
+							}
+							$html .= isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
+						$html .= '</td>';
+					$html .= '</tr>';
+				}
+			$html .= '</tbody>';
+		$html .= '</table>';
+
+		if( $return ) {
+			return $html;
+		}
+		print $html;
+	}
 
 	// Top Level Options Menu
 	function waf_options_page_html() {
@@ -111,47 +141,49 @@
 								'type' => 'checkbox'
 							)
 						);
+
+						$local_csv = get_option('waf_local_csv');
+						$local_csv_fields = array(
+							array( 
+								'label' => 'CSV Directory Path',
+								'name' => 'path',
+								'type' => 'text',
+								'description' => isset( $local_csv['path'] ) ? ( ( file_exists( $local_csv['path'] ) ) ? '<span style="color: #00a32a;">Directory found</span>' : '<strong style="color: #d63638;">Directory doesn\'t exist</strong>' ) : ''
+							),
+							array( 
+								'label' => 'Buoy ID',
+								'name' => 'bouy_id',
+								'type' => 'text'
+							)
+						);
 					?>
-					<table class="form-table">
-						<tbody>
-							<h2>AWS</h2>
-							<h4>Cron Commands</h4>
-							<p>Add the following commands to your servers cron to automate buoy fetch. You may need to adjust the path to PHP depending on your systems configuration.</p>
-							<ol>
-								<li>
-									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_buoys_csv"</code><br>
-									0,30&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks the buoys.csv for updates</em>
-								</li>
-								<li>
-									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_update_flagged_buoys"</code><br>
-									2,32&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks each buoys to see if there is new data</em>
-								</li>
-								<!-- <li>
-									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_file"</code><br>
-									*/3&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs a single buoys new/updated file</em>
-								</li> -->
-								<li>
-									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_count_wave_file_requires_download" | xargs seq | xargs -Iz /usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_file"</code><br>
-									3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs all buoys marked as requiring update (one at a time)</em>
-								</li>
-								<li>
-									<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_jpgs"</code><br>
-									3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs all buoy memplots not already downloaded</em>
-								</li>
-							</ol>
-							<?php
-								foreach( $s3_fields as $field ) {
-									print '<tr>';
-										print '<th scope="row"><label for="waf_s3[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
-										print '<td>';
-											print '<input name="waf_s3[' . $field['name'] . ']" type="' . $field['type'] . '" id="waf_s3[' . $field['name'] . ']" value="' . esc_attr( isset( $s3[$field['name']] ) ? $s3[$field['name']] : '' ) . '" class="regular-text">';
-											print isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
-										print '</td>';
-									print '</tr>';
-								}
-							?>
-						</tbody>
-					</table>
+					<h2>AWS</h2>
+					<h4>Cron Commands</h4>
+					<p>Add the following commands to your servers cron to automate buoy fetch. You may need to adjust the path to PHP depending on your systems configuration.</p>
+					<ol>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_buoys_csv"</code><br>
+							0,30&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks the buoys.csv for updates</em>
+						</li>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_update_flagged_buoys"</code><br>
+							2,32&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Checks each buoys to see if there is new data</em>
+						</li>
+						<!-- <li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_file"</code><br>
+							*/3&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs a single buoys new/updated file</em>
+						</li> -->
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_count_wave_file_requires_download" | xargs seq | xargs -Iz /usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_file"</code><br>
+							3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs all buoys marked as requiring update (one at a time)</em>
+						</li>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_wave_jpgs"</code><br>
+							3,33&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs all buoy memplots not already downloaded</em>
+						</li>
+					</ol>
+					<?php waf_settings_table( 'waf_s3', $s3_fields, $s3 ); ?>
+					
 					<h2>Spotter</h2>
 					<p>Use this method to grab records directly from Spotter</p>
 					<ol>
@@ -168,29 +200,12 @@
 							3,18,33,48&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Grabs buoys with new data</em>
 						</li>
 					</ol>
-					<table class="form-table">
-						<tbody>
-							<?php
-								foreach( $spotter_fields as $field ) {
-									print '<tr>';
-										print '<th scope="row"><label for="waf_spotter[' . $field['name'] . ']">' . $field['label'] . '</label></th>';
-										print '<td>';
-											switch( $field['type'] ) {
-												case 'checkbox':
-													print '<input name="waf_spotter[' . $field['name'] . ']" type="checkbox" id="waf_spotter[' . $field['name'] . ']" value="1" ' . checked( $spotter[$field['name']], '1', false ) . ' class="regular-text">';
-													break;
-												case 'text':
-												default:
-													print '<input name="waf_spotter[' . $field['name'] . ']" type="text" id="waf_spotter[' . $field['name'] . ']" value="' . esc_attr( isset( $spotter[$field['name']] ) ? $spotter[$field['name']] : '' ) . '" class="regular-text">';
-													break;
-											}
-											print isset( $field['description'] ) ? '<p>' . $field['description'] . '</p>' : '';
-										print '</td>';
-									print '</tr>';
-								}
-							?>
-						</tbody>
-					</table>
+					<?php waf_settings_table( 'waf_spotter', $spotter_fields, $spotter ); ?>
+					
+					<h2>Local CSV Directory</h2>
+					<p>For example <code><?php print WAF__PLUGIN_DIR; ?>csv_directoy/</code></p>
+					<?php waf_settings_table( 'waf_local_csv', $local_csv_fields, $local_csv ); ?>
+					
 					<?php submit_button(); ?>
 				</form>
 			</div>

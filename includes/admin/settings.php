@@ -13,6 +13,12 @@
 			'waf_sanitize_options'
 		);
 
+		register_setting( 
+			'waf-buoy-options', 
+			'waf_local_csv',
+			'waf_sanitize_options'
+		);
+
 		register_setting(
 			'waf-buoy-options-refresh',
 			'waf_refresh',
