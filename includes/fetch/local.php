@@ -3,7 +3,7 @@
 
 	function waf_local_fetch_updates() {
 		global $wpdb;
-		$MAXFILES = 5; 
+		$MAXFILES = 12; // 6 hours
 
 		// Options
 		$waf_local_csv = get_option('waf_local_csv');
