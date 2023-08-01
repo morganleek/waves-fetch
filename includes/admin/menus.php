@@ -201,7 +201,13 @@
 						</li>
 					</ol>
 					<?php waf_settings_table( 'waf_spotter', $spotter_fields, $spotter ); ?>
-					
+					<p>Cron setup to automated this process</p>
+					<ol>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_local_fetch_updates"</code><br>
+							0&nbsp;&nbsp;0,15,45&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Update device list in the DB</em>
+						</li>
+					</ol>
 					<h2>Local CSV Directory</h2>
 					<p>For example <code><?php print WAF__PLUGIN_DIR; ?>csv_directoy/</code></p>
 					<?php waf_settings_table( 'waf_local_csv', $local_csv_fields, $local_csv ); ?>
