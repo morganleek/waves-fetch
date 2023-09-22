@@ -70,11 +70,11 @@
 										"Timestamp (UTC)" => date('Y-m-d\TH:i:s.000Z', $u), 
 										"Site" => "SPOT-" . $buoy_id, 
 										"BuoyID" => "SPOT-" . $buoy_id, 
-										"Hsig (m)" => floatval( $exploded[0] ), // Significant Wave Height (metres)
+										"Hsig (m)" => floatval( $exploded[3] ), // Significant Wave Height (metres)
 										"Hmax (m)" => floatval( $exploded[1] ), // Max Wave Height (m)
 										"Tz (s)" => floatval( $exploded[2] ), // Zero-crossing avergage
 										"Tp (s)" => floatval( $exploded[4] ), // Peak Wave Period (s)
-										"Tm (s)" => -9999, // Mean Wave Period (s)
+										"Tm (s)" => floatval( $exploded[5] ), // Mean Wave Period (s)
 										"Dp (deg)" => floatval( $exploded[6] ), // Peak Wave Direction (deg)
 										"DpSpr (deg)" => -9999, // Peak Wave Directional Spreading (deg)
 										"Dm (deg)" => floatval( $exploded[7] ), // Mean Wave Direction (deg)
