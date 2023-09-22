@@ -50,12 +50,12 @@
 							if( $file ) {
 								$file = str_replace( array( "\n", "\r", " " ), '', $file ); // Remove formatting spaces, new lines and carriage returns
 								$exploded = explode( ',', $file ); // Explode into rows
-								// 0: Hs, // Significant wave height
+								// 0: Hs, // Ignore?
 								// 1: Hmax // Maximum wave height
 								// 2: Tz, // Zero-crossing average wave period
-								// 3: Hm0 // Spectral significant wave height
+								// 3: Hm0 // Significant wave height (Hs)
 								// 4: Tp // Peak period
-								// 5: Tm01 // Spectral significant wave period
+								// 5: Tm01 // Mean wave period (Tm)
 								// 6: 0p // Peak Wave Direction
 								// 7: 0m // Mean Wave Direction
 								// 8: SST // Sea surface temperature
