@@ -21,7 +21,12 @@
 		);
 
 		if( $wpdb->num_rows > 0 ) {
-			return waf_get_local_path( $memplot->full_path );
+			if( substr($memplot->full_path, 0, 4) === "http" ) {
+				$memplot->full_path;
+			}
+			else {
+				return waf_get_local_path( $memplot->full_path );
+			}
 		}
 
 		return;
@@ -29,6 +34,8 @@
 
 	function waf_get_buoy_image_path( $buoy_id = 0 ) {
 		global $wpdb;
+		// Check if using AWS
+		$waf_s3 = get_option('waf_s3');
 		
 		if( $buoy_id == 0 ) {
 			return;
@@ -43,7 +50,12 @@
 		);
 
 		if( $wpdb->num_rows > 0 ) {
-			return $buoy->image; // waf_get_local_path();
+			if( substr($buoy->image, 0, 4) === "http" ) {
+				return $buoy->image; // waf_get_local_path();
+			}
+			else {
+				return waf_get_local_path($buoy->image);
+			}	
 		}
 
 		return;

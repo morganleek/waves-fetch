@@ -59,7 +59,7 @@
 			}
 			catch ( S3Exception $e ) {
 				print "There was an error reading the file '" . $object . "'\n";
-				print $e->getResponse();
+				print $e->getAwsErrorType();
 			}
 		}
 	}

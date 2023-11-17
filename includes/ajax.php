@@ -27,6 +27,12 @@
 			$query = $query . " ORDER BY `menu_order`";
 			// Get buoys
 			$buoys = $wpdb->get_results( $query );
+
+			// Process Images that may be hosted externally
+			foreach($buoys as $buoy) {
+				$buoy->image = waf_get_buoy_image_path( $buoy->id );
+			}
+
 			// Cache results for 5 minutes
 			wp_cache_set( 'list_buoys', $buoys, 'waf_rest', 300 );
 			// Return JSON
