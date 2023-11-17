@@ -5,11 +5,14 @@
 	use League\Csv\Writer;
 
 	// List Buoys
-	function waf_rest_list_buoys( $id = 0 ) {
+	function waf_rest_list_buoys( $ids = [] ) {
 		global $wpdb;
+
+		// Append labels if narrowed
+		$cached_label = sizeof( $ids ) ? 'list_buoys' : 'list_buoys_' . implode("_", $ids);
 		
 		// Check for cached data
-		$cached = wp_cache_get( 'list_buoys', 'waf_rest' );
+		$cached = wp_cache_get( $cached_label, 'waf_rest' );
 
 		if( $cached === false ) {
 			// All buoys
@@ -17,16 +20,18 @@
 			FROM {$wpdb->prefix}waf_buoys
 			WHERE `is_enabled` != 0";
 			// Specific buoy
-			if( $id != 0 ) {
-				$query = $wpdb->prepare(
-					$query . " AND `id` = %d",
-					$id
-				);
+			if( sizeof( $ids ) > 0 ) {
+				$query .= " AND `id` IN (" . implode(",", $ids) . ")";
 			}
 			// Order by Menu Order
 			$query = $query . " ORDER BY `menu_order`";
+			
 			// Get buoys
-			$buoys = $wpdb->get_results( $query );
+			$buoys = $wpdb->get_results( 
+				$wpdb->prepare(
+					$query 
+				) 
+			);
 
 			// Process Images that may be hosted externally
 			foreach($buoys as $buoy) {
@@ -34,7 +39,7 @@
 			}
 
 			// Cache results for 5 minutes
-			wp_cache_set( 'list_buoys', $buoys, 'waf_rest', 300 );
+			wp_cache_set( $cached_label, $buoys, 'waf_rest', 300 );
 			// Return JSON
 			return json_encode( $buoys );
 		}
@@ -44,11 +49,15 @@
 	}
 	
 	function waf_rest_list_buoys_ajax( ) {
-		$id = 0;
+		$ids = [];
 		if( isset( $_REQUEST['id'] ) ) {
-			$id = intval( $_REQUEST['id'] ); 
+			$ids[] = intval( $_REQUEST['id'] ); 
 		}
-		print waf_rest_list_buoys( $id );
+		if( isset( $_REQUEST['restrict'] ) ) {
+			// $extra = explode( ",", $_REQUEST['restrict']);
+			$ids = array_merge( $ids, explode( ",", $_REQUEST['restrict'] ) );
+		}
+		print waf_rest_list_buoys( $ids );
 		wp_die();
 	}
 
