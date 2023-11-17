@@ -43,7 +43,7 @@
 		);
 
 		if( $wpdb->num_rows > 0 ) {
-			return waf_get_local_path( $buoy->image );
+			return $buoy->image; // waf_get_local_path();
 		}
 
 		return;

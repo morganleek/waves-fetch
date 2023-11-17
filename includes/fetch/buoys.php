@@ -246,7 +246,7 @@
 					'drifting' => $r['drifting'],
 					'download_text' => ( isset( $r['download_text' ] ) ) ? $r['download_text'] : '',
 					'description' => ( isset( $r['description' ] ) ) ? $r['description'] : '',
-					'image' => ( isset( $r['image' ] ) ) ? $waf_s3['buoy_root'] . '/' . $r['label'] . '/' . $r['image'] : '',
+					'image' => ( isset( $r['image' ] ) && !empty( $r['image' ] ) ) ? $waf_s3['buoy_root'] . '/' . $r['label'] . '/' . $r['image'] : '',
 					'download_enabled' => $r['download_enabled'] // d
 				);
 
