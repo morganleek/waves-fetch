@@ -630,7 +630,7 @@
 											}, $buoy );
 											
 											$title = 'Edit Existing Buoy';
-											unset( $fields[0] ); // Remove ID for update
+											// unset( $fields[0] ); // Remove ID for update
 										}
 									}
 									
