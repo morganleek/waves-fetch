@@ -98,7 +98,7 @@
 								$today = date( 'Y-m-d', $now );
 								if( array_key_exists( $today, $data ) ) {
 									$height = $data[$today]->count * 3;
-									print '<div data-info="' . $today . ': ' . $data[$today]->count . '" style="height: ' . $height . 'px;"></div>';
+									print '<div data-info="' . $today . ' (' . $now . ')' . ': ' . $data[$today]->count . ' entries" style="height: ' . $height . 'px;"></div>';
 								}
 								else {
 									print '<div data-info="' . $today . ': 0" style="height: 0px;"></div>';
