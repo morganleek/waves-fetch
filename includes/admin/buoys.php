@@ -397,6 +397,14 @@
 									// All fields in the form and db
 									$fields = array(
 										array(
+											'field' => 'id', 
+											'form_field' => 'id',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'ID',
+											'type' => '%d'
+										),
+										array(
 											'field' => 'web_display_name', 
 											'form_field' => 'web-display-name',
 											'input' => 'text',
@@ -565,29 +573,28 @@
 									
 									if(isset($_REQUEST['buoy-info'])) {
 										// nonce check
+										$data = array();
+										$format = array();
 										
+										// Add each value
+										foreach( $fields as $field ) {
+											switch ($field['input']) {
+												case 'checkbox':
+													$value = ( $_REQUEST[$field['form_field']] == "1" ) ? 1 : 0;
+													break;
+												case 'select':
+												default:
+													$value = $_REQUEST[$field['form_field']];
+													break;
+											}
+											$data[$field['field']] = $value;
+											array_push( $format, $field['type'] );
+										}
+
 										// Existing
 										if(isset($_REQUEST['hidden-id']) && !empty($_REQUEST['hidden-id'])) {
-											
-											$data = array();
 											$where = array( 'id' => $_REQUEST['buoy'] );
-											$format = array();
 											$where_format = array( '%d' );
-
-											// Add each value
-											foreach( $fields as $field ) {
-												switch ($field['input']) {
-													case 'checkbox':
-														$value = ( $_REQUEST[$field['form_field']] == "1" ) ? 1 : 0;
-														break;
-													case 'select':
-													default:
-														$value = $_REQUEST[$field['form_field']];
-														break;
-												}
-												$data[$field['field']] = $value;
-												array_push( $format, $field['type'] );
-											}
 
 											$wpdb->update( 
 												"{$wpdb->prefix}waf_buoys",
@@ -599,7 +606,11 @@
 										}	
 										// New
 										else {
-
+											$wpdb->insert(
+												"{$wpdb->prefix}waf_buoys",
+												$data,
+												$format
+											);
 										}
 									}
 									else if(isset($_REQUEST['action'])) {
@@ -619,6 +630,7 @@
 											}, $buoy );
 											
 											$title = 'Edit Existing Buoy';
+											unset( $fields[0] ); // Remove ID for update
 										}
 									}
 									

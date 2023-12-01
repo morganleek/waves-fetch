@@ -18,6 +18,8 @@ if ( ! defined( 'WP_ADMIN' ) ) {
 	define( 'WP_ADMIN', true );
 }
 
+$_SERVER['REQUEST_METHOD'] = 'POST';
+
 /** Load WordPress Bootstrap */
 require_once dirname( __DIR__ ) . '/../../../wp-load.php';
 
