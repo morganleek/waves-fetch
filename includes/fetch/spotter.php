@@ -184,20 +184,25 @@
 				// Check for null values for new buoys
 				if( $last_update_timestamp == null ) {
 					$last_update_timestamp = 0;
+					$last_update_timestamp_end = time();
 				}
-
-				$last_update = waf_spotter_epoch_to_ISO8601( $last_update_timestamp );
-
+				else {
+					$last_update_timestamp_end = strtotime( "+5 days", $last_update_timestamp );
+				}
+				
 				$params = array(
 					'spotterId=' . $spotterId,
-					'limit=' . $limit,
-					'startDate=' . $last_update, 
+					// 'limit=' . $limit,
+					'startDate=' . waf_spotter_epoch_to_ISO8601( $last_update_timestamp ), 
+					'endDate=' . waf_spotter_epoch_to_ISO8601( $last_update_timestamp_end ), 
 					'includeWindData=true',
 					'includeSurfaceTempData=true',
 					'includeFrequencyData=false',
-					'includeDirectionalMoments=true'
+					'includeDirectionalMoments=true',
+					'includePartitionData=true',
+					'includeBarometerData=true'
 				);
-
+				
 				// CURL Latest data
 				$response = waf_spotter_curl_request( array( 
 					"url" => "https://api.sofarocean.com/api/wave-data?" . implode( '&', $params ),
@@ -207,38 +212,65 @@
 				// Debug 
 				// error_log( "Response for " . $spotterId . ": Length " . strlen( $response ), 0 );
 				
-				// $response = '{"data":{"spotterId":"SPOT-0867","limit":10,"waves":[{"significantWaveHeight":0.01,"peakPeriod":20.48,"meanPeriod":10.24,"peakDirection":7.765,"peakDirectionalSpread":79.25,"meanDirection":37.776,"meanDirectionalSpread":78.999,"timestamp":"2020-10-19T23:31:31.000Z","latitude":37.77335,"longitude":-122.38632},{"significantWaveHeight":0.06,"peakPeriod":5.12,"meanPeriod":5.48,"peakDirection":27.087,"peakDirectionalSpread":74.975,"meanDirection":180,"meanDirectionalSpread":79.064,"timestamp":"2020-10-20T00:01:31.000Z","latitude":37.77335,"longitude":-122.38632},{"significantWaveHeight":0.07,"peakPeriod":10.24,"meanPeriod":7.4,"peakDirection":42.29,"peakDirectionalSpread":70.922,"meanDirection":30.44,"meanDirectionalSpread":76.443,"timestamp":"2021-07-16T04:55:25.000Z","latitude":-34.95325,"longitude":138.50555},{"significantWaveHeight":0.04,"peakPeriod":10.24,"meanPeriod":5.96,"peakDirection":212.196,"peakDirectionalSpread":78.461,"meanDirection":86.186,"meanDirectionalSpread":79.222,"timestamp":"2021-07-16T05:25:25.000Z","latitude":-34.95325,"longitude":138.50553},{"significantWaveHeight":0.05,"peakPeriod":10.24,"meanPeriod":6.78,"peakDirection":11.768,"peakDirectionalSpread":80.052,"meanDirection":58.339,"meanDirectionalSpread":78.187,"timestamp":"2021-07-16T05:55:25.000Z","latitude":-34.95327,"longitude":138.50555},{"significantWaveHeight":0.05,"peakPeriod":6.82,"meanPeriod":6.52,"peakDirection":118.021,"peakDirectionalSpread":60.236,"meanDirection":98.945,"meanDirectionalSpread":76.576,"timestamp":"2021-07-16T06:25:25.000Z","latitude":-34.95325,"longitude":138.50555},{"significantWaveHeight":0.17,"peakPeriod":10.24,"meanPeriod":3.78,"peakDirection":234.486,"peakDirectionalSpread":54.644,"meanDirection":258.111,"meanDirectionalSpread":76.275,"timestamp":"2021-09-13T12:06:00.000Z","latitude":-34.85525,"longitude":138.3547},{"significantWaveHeight":0.36,"peakPeriod":11.36,"meanPeriod":5.78,"peakDirection":217.398,"peakDirectionalSpread":42.796,"meanDirection":217.595,"meanDirectionalSpread":69.572,"timestamp":"2021-09-13T12:36:00.000Z","latitude":-34.89295,"longitude":138.2922},{"significantWaveHeight":1.23,"peakPeriod":11.36,"meanPeriod":7.88,"peakDirection":260.386,"peakDirectionalSpread":23.884,"meanDirection":264.02,"meanDirectionalSpread":44.104,"timestamp":"2021-09-13T22:12:01.000Z","latitude":-35.51842,"longitude":137.04245},{"significantWaveHeight":1.56,"peakPeriod":11.36,"meanPeriod":8.38,"peakDirection":260.488,"peakDirectionalSpread":20.714,"meanDirection":263.091,"meanDirectionalSpread":38.692,"timestamp":"2021-09-13T22:42:01.000Z","latitude":-35.55008,"longitude":136.97073}],"surfaceTemp":[{"degrees":13.72,"latitude":-34.95325,"longitude":138.5055333,"timestamp":"2021-07-16T05:25:25.000Z"},{"degrees":11.26,"latitude":-34.95325,"longitude":138.50555,"timestamp":"2021-07-16T06:25:25.000Z"}],"wind":[{"speed":0,"direction":125,"seasurfaceId":1,"latitude":37.77335,"longitude":-122.3863167,"timestamp":"2020-10-19T23:31:31.000Z"},{"speed":0,"direction":74,"seasurfaceId":1,"latitude":37.77335,"longitude":-122.3863167,"timestamp":"2020-10-20T00:01:31.000Z"},{"speed":0,"direction":22,"seasurfaceId":1,"latitude":-34.95325,"longitude":138.50555,"timestamp":"2021-07-16T04:55:25.000Z"},{"speed":0,"direction":354,"seasurfaceId":1,"latitude":-34.95325,"longitude":138.5055333,"timestamp":"2021-07-16T05:25:25.000Z"},{"speed":0,"direction":22,"seasurfaceId":1,"latitude":-34.9532667,"longitude":138.50555,"timestamp":"2021-07-16T05:55:25.000Z"},{"speed":0,"direction":40,"seasurfaceId":1,"latitude":-34.95325,"longitude":138.50555,"timestamp":"2021-07-16T06:25:25.000Z"}]}}';
 				$json_res = json_decode( $response );
 
 				$data = [];
 				
 				$checks = array(
-					$json_res->data->wind,
-					$json_res->data->surfaceTemp,
-					$json_res->data->waves
+					'wind' => $json_res->data->wind,
+					'surfaceTemp' => $json_res->data->surfaceTemp,
+					'waves' => $json_res->data->waves,
+					'barometerData' => $json_res->data->barometerData,
+					'partitionData' => $json_res->data->partitionData
 				);
 
 				$final_update = 0;
 
+				// Time
+
 				// Group all data by timestamp
-				foreach( $checks as $check ) {
+				foreach( $checks as $check_key => $check ) {
 					if( $check ) {
 						foreach( $check as $data_point ) {
 							$key = waf_spotter_ISO8601_to_epoch( $data_point->timestamp );
+							
+							// Store final update for compare for new records later
 							$final_update = ( $key > $final_update ) ? $key : $final_update;
+							
+							// Setup basic buoy info if not already set
 							if( !isset( $data[$key] ) ) {
 								$data[$key] = array( 
 									'Time (UNIX/UTC)' => intval( $key ),
 									'BuoyID' => $buoy->label,
 									'Site' => $buoy->label,
-									'buoy_id' => $buoy->id
+									'buoy_id' => $buoy->id,
+									'key' => $data_point->timestamp
 								);
 							}
-							$data[$key] = array_merge( $data[$key], get_object_vars( $data_point ) );
+
+							// Partitioned data is structured differently
+							// print $check_key . "\n";
+							if( $check_key == "partitionData") {
+								$partitions_grouped = [];
+								// For each of the two partition data sets 
+								
+								foreach( $data_point->partitions as $partition_item => $partition ) {
+									// Extract object properties as array and merge into group value
+									$sep = get_object_vars( $partition );
+									foreach( $sep as $k => $v ) {
+										$partitions_grouped['partition_' . $partition_item . '_' . $k] = $v;
+									}
+								}
+								
+								$data[$key] = array_merge( $data[$key], $partitions_grouped );
+							}
+							else {
+								$data[$key] = array_merge( $data[$key], get_object_vars( $data_point ) );
+							}
 						}
 					}
 				}
-				
+
 				// Convert keys to system format
 				$local_format = waf_spotter_to_waf_keys( $data );
 
@@ -343,7 +375,7 @@
 	}
 
 	function waf_spotter_epoch_to_ISO8601( $time ) {	
-		return date_format( date_create( '@'. $time ), 'c' );	
+		return date( 'Ymd\THis\Z', $time );
 	}
 
 	function waf_spotter_to_waf_keys( $data_array ) {
