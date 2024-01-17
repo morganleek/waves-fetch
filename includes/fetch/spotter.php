@@ -403,7 +403,7 @@
 			'longitude' => 'Longitude (deg) ',
 			'partition_0_significantWaveHeight' => 'Hsig_swell (m)', 
 			'partition_1_significantWaveHeight' => 'Hsig_sea (m)',
-			'value' => 'Pressure (hSig)'
+			'value' => 'Pressure (hPa)'
 		);
 
 		$defaults = array(
