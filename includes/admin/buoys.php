@@ -568,6 +568,14 @@
 											'value' => '',
 											'label' => 'Download Requires Details',
 											'type' => '%d'
+										),
+										array(
+											'field' => 'willy_weather_location_id', 
+											'form_field' => 'willy-weather-location-id',
+											'input' => 'text',
+											'value' => '',
+											'label' => 'Willy Weather Location ID (Optional)',
+											'type' => '%d'
 										)
 									);
 									

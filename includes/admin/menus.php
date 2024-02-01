@@ -156,6 +156,15 @@
 								'type' => 'text'
 							)
 						);
+
+						$willy_weather = get_option('waf_willy_weather');
+						$willy_weather_fields = array(
+							array( 
+								'label' => 'API Key',
+								'name' => 'api_key',
+								'type' => 'text'
+							)
+						);
 					?>
 					<h2>AWS</h2>
 					<h4>Cron Commands</h4>
@@ -211,7 +220,10 @@
 					<h2>Local CSV Directory</h2>
 					<p>For example <code><?php print WAF__PLUGIN_DIR; ?>csv_directoy/</code></p>
 					<?php waf_settings_table( 'waf_local_csv', $local_csv_fields, $local_csv ); ?>
-					
+
+					<h2>WillyWeather API</h2>
+					<?php waf_settings_table( 'waf_willy_weather', $willy_weather_fields, $willy_weather ); ?>
+
 					<?php submit_button(); ?>
 				</form>
 			</div>

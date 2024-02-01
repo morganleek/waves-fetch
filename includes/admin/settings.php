@@ -4,31 +4,49 @@
 		register_setting( 
 			'waf-buoy-options', 
 			'waf_s3',
-			'waf_sanitize_options'
+			array(
+				'sanitize_callback' => 'waf_sanitize_options'
+			)
 		);
 
 		register_setting( 
 			'waf-buoy-options', 
 			'waf_spotter',
-			'waf_sanitize_options'
+			array(
+				'sanitize_callback' => 'waf_sanitize_options'
+			)
 		);
 
 		register_setting( 
 			'waf-buoy-options', 
 			'waf_local_csv',
-			'waf_sanitize_options'
+			array(
+				'sanitize_callback' => 'waf_sanitize_options'
+			)
+		);
+
+		register_setting( 
+			'waf-buoy-options', 
+			'waf_willy_weather',
+			array(
+				'sanitize_callback' => 'waf_sanitize_options'
+			)
 		);
 
 		register_setting(
 			'waf-buoy-options-refresh',
 			'waf_refresh',
-			'waf_sanitize_options_refresh'
+			array(
+				'sanitize_callback' => 'waf_sanitize_options_refresh'
+			)
 		);
 
 		register_setting(
 			'waf-buoy-options-migrate',
 			'waf_migrate',
-			'waf_sanitize_options_migrate'
+			array(
+				'sanitize_callback' => 'waf_sanitize_options_migrate'
+			)
 		);
 	}
 
