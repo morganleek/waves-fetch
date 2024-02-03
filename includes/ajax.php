@@ -208,109 +208,6 @@
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoy_datapoints', 'waf_rest_list_buoy_datapoints_ajax' );
 
 	// Tide Data
-
-	// function waf_rest_list_buoy_tide_data( $args = [] ) {
-	// 	global $wpdb;
-		
-	// 	$defaults = array(
-	// 		'id' => 0,
-	// 		'start' => 0,
-	// 		'end' => 0,
-	// 		'table' => $wpdb->prefix . 'waf_wave_tides',
-	// 		'json' => true,
-	// 		'order' => 'DESC'
-	// 	);
-	// 	$_args = array_merge( $defaults, $args );
-
-	// 	$default_range = "-5 days";
-	// 	// $default_data_points = 48;
-	// 	$has_results = false;
-
-	// 	// Fetch in timeframe
-	// 	$query = $wpdb->prepare( 
-	// 		"SELECT * FROM {$_args['table']} 
-	// 		WHERE `buoy_id` = %d",
-	// 		$_args['id']
-	// 	);
-
-	// 	// No range set
-	// 	if( $_args['start'] == 0 && $_args['end'] == 0 ) {
-	// 		// // Grab last 2 days results
-	// 		$query = $wpdb->prepare( 
-	// 			$query . " AND `timestamp` > %d",
-	// 			date( 'U', strtotime( $default_range ) )
-	// 		); 
-	// 	}
-	// 	else {
-	// 		// Range set
-	// 		if( $_args['start'] != 0 ) {
-	// 			$query = $wpdb->prepare( 
-	// 				$query . " AND `timestamp` > %d",
-	// 				$_args['start']
-	// 			); 
-	// 		}
-
-	// 		if( $_args['end'] != 0 ) {
-	// 			$query = $wpdb->prepare( 
-	// 				$query . " AND `timestamp` < %d",
-	// 				$_args['end']
-	// 			); 
-	// 		}
-	// 	}
-
-	// 	// Order
-	// 	$query .= " ORDER BY `timestamp` " . $_args['order'];
-
-	// 	$data = $wpdb->get_results( $query, 'ARRAY_A' );
-
-	// 	// No results in that time range?
-	// 	if( $wpdb->num_rows == 0 && $_args['start'] == 0 && $_args['end'] == 0 ) {
-	// 		// Most recent timestamp
-	// 		$recent = $wpdb->get_var(
-	// 			$wpdb->prepare(
-	// 				"SELECT `timestamp` FROM {$_args['table']} 
-	// 				WHERE `buoy_id` = %d
-	// 				ORDER BY `timestamp` DESC
-	// 				LIMIT 1", 
-	// 				$_args['id']
-	// 			)
-	// 		);
-
-	// 		if( $recent ) {
-	// 			// Two days before most recent
-	// 			$data = $wpdb->get_results(
-	// 				$wpdb->prepare( 
-	// 					"SELECT * FROM {$_args['table']} 
-	// 					WHERE `buoy_id` = %d
-	// 					AND `timestamp` > %d
-	// 					ORDER BY `timestamp` " . $_args['order'],
-	// 					$_args['id'], date( 'U', strtotime( $default_range, $recent ) )
-	// 				),
-	// 				'ARRAY_A'
-	// 			);
-	// 		}
-	// 	}
-	
-	// 	if( !empty( $data ) ) {
-	// 		$has_results = true;
-	// 	}
-		
-	// 	if( $_args['json'] ) {
-	// 		return json_encode(
-	// 			array(
-	// 				'success' => intval( $has_results ),
-	// 				'buoy_id' => $_args['id'],
-	// 				'data' => $data
-	// 			)
-	// 		);
-	// 	}
-	// 	return array(
-	// 		'success' => intval( $has_results ),
-	// 		'buoy_id' => $_args['id'],
-	// 		'data' => $data
-	// 	);
-	// }
-
 	function waf_rest_list_buoy_tide_data_ajax() {
 		global $wpdb;
 		
@@ -567,6 +464,36 @@
 		if( $location_id ) {
 
 		}
+
+		// Check for start and end dates
+		// $start = 0;
+		// if( isset( $_REQUEST['start'] ) ) {
+		// 	$start = intval( $_REQUEST['start'] );
+		// }
+		// $end = 0;
+		// if( isset( $_REQUEST['end'] ) ) {
+		// 	$end = intval( $_REQUEST['end'] );
+		// }
+
+		// Check for cached version 
+		// $datapoints = wp_cache_get( "list_buoys_tides_{$id}_{$start}_{$end}", 'waf_rest' );
+		
+		// if( $datapoints === false ) {
+		// 	// Fetch fresh data
+		// 	$datapoints = waf_rest_list_buoy_datapoints( 
+		// 		array( 
+		// 			'id' => $id, 
+		// 			'start' => $start, 
+		// 			'end' => $end, 
+		// 			'table' => $wpdb->prefix . 'waf_wave_tides',
+		// 			'order' => 'DESC'
+		// 		) 
+		// 	);
+		// 	// Cache results for 5 minutes
+		// 	wp_cache_set( "list_buoys_tides_{$id}_{$start}_{$end}", $datapoints, 'waf_rest', 300 );
+		// }
+
+		// print $datapoints;
 
 		wp_die();
 	}
