@@ -78,6 +78,16 @@
 		) $charset_collate;";
 		dbDelta( $sql );
 
+		$table_name = $wpdb->prefix . "waf_wave_tides";
+		$sql = "CREATE TABLE $table_name (
+			id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+			buoy_id MEDIUMINT(9) NOT NULL,
+			timestamp BIGINT(8),
+			height FLOAT(4,3) NOT NULL,
+			PRIMARY KEY  (id)
+		) $charset_collate;";
+		dbDelta( $sql );
+
 		// User Submitted Information
 		$table_name = $wpdb->prefix . "waf_user_data";
 		$sql = "CREATE TABLE $table_name (

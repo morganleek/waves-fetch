@@ -392,6 +392,67 @@
 	add_action( 'wp_ajax_waf_rest_list_buoys_memplots', 'waf_rest_list_buoys_memplots_ajax' );
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoys_memplots', 'waf_rest_list_buoys_memplots_ajax' );
 
+	function waf_rest_list_buoys_tides_ajax( ) {
+		global $wpdb;
+		
+		$id = 0;
+		if( isset( $_REQUEST['id'] ) ) {
+			$id = intval( $_REQUEST['id'] ); 
+		}
+		else {
+			// No ID set
+			print 0;
+			wp_die();
+		}
+
+		$location_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT `willy_weather_location_id` 
+				FROM {$wpdb->prefix}waf_waves_tides 
+				WHERE `id` = %d",
+				$id
+			)
+		);
+		if( $location_id ) {
+
+		}
+
+		// Check for start and end dates
+		// $start = 0;
+		// if( isset( $_REQUEST['start'] ) ) {
+		// 	$start = intval( $_REQUEST['start'] );
+		// }
+		// $end = 0;
+		// if( isset( $_REQUEST['end'] ) ) {
+		// 	$end = intval( $_REQUEST['end'] );
+		// }
+
+		// Check for cached version 
+		// $datapoints = wp_cache_get( "list_buoys_tides_{$id}_{$start}_{$end}", 'waf_rest' );
+		
+		// if( $datapoints === false ) {
+		// 	// Fetch fresh data
+		// 	$datapoints = waf_rest_list_buoy_datapoints( 
+		// 		array( 
+		// 			'id' => $id, 
+		// 			'start' => $start, 
+		// 			'end' => $end, 
+		// 			'table' => $wpdb->prefix . 'waf_wave_tides',
+		// 			'order' => 'DESC'
+		// 		) 
+		// 	);
+		// 	// Cache results for 5 minutes
+		// 	wp_cache_set( "list_buoys_tides_{$id}_{$start}_{$end}", $datapoints, 'waf_rest', 300 );
+		// }
+
+		// print $datapoints;
+
+		wp_die();
+	}
+
+	add_action( 'wp_ajax_waf_rest_list_buoys_tides', 'waf_rest_list_buoys_tides_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_rest_list_buoys_tides', 'waf_rest_list_buoys_tides_ajax' );
+
 	// Spotter AJAX
 	function waf_spotter_fetch_devices_ajax() {
 		waf_spotter_fetch_devices();
