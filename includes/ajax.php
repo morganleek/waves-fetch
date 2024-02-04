@@ -502,6 +502,16 @@
 	add_action( 'wp_ajax_nopriv_waf_rest_list_buoys_tides', 'waf_rest_list_buoys_tides_ajax' );
 
 	// Spotter AJAX
+	function waf_fetch_tides_ajax() {
+		waf_fetch_tides();
+
+		wp_die();
+	}
+
+	add_action( 'wp_ajax_waf_fetch_tides', 'waf_fetch_tides_ajax' );
+	add_action( 'wp_ajax_nopriv_waf_fetch_tides', 'waf_fetch_tides_ajax' );
+
+	// Spotter AJAX
 	function waf_spotter_fetch_devices_ajax() {
 		waf_spotter_fetch_devices();
 

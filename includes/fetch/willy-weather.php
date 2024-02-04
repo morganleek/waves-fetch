@@ -1,86 +1,78 @@
 <?php 
-	// https://api.willyweather.com.au/v2/ZWI2MzBlMmE3MTk3ZDE1NjU1M2FkZT/locations/10520/weather.json
+	// https://api.willyweather.com.au/v2/API_KEY/locations/LOCATION_ID/weather.json
 	// Headers
 	// Content-Type: application/json
 	// x-payload: {"forecasts": ["tides"], "days": 2, "startDate": "2024-02-01"}
 
-	// Example
+  function waf_fetch_tides() {
+    global $wpdb;
 
-	// {
-  //   "location": {
-  //     "id": 10520,
-  //     "name": "Devonport",
-  //     "region": "North Western",
-  //     "state": "TAS",
-  //     "postcode": "7310",
-  //     "timeZone": "Australia/Hobart",
-  //     "lat": -41.1639,
-  //     "lng": 146.3504,
-  //     "typeId": 12
-  //   },
-  //   "forecasts": {
-  //     "tides": {
-  //       "days": [
-  //         {
-  //           "dateTime": "2024-02-01 00:00:00",
-  //           "entries": [
-  //             {
-  //               "dateTime": "2024-02-01 04:59:00",
-  //               "height": 3.12,
-  //               "type": "high"
-  //             },
-  //             {
-  //               "dateTime": "2024-02-01 11:19:00",
-  //               "height": 0.93,
-  //               "type": "low"
-  //             },
-  //             {
-  //               "dateTime": "2024-02-01 17:16:00",
-  //               "height": 2.97,
-  //               "type": "high"
-  //             },
-  //             {
-  //               "dateTime": "2024-02-01 23:29:00",
-  //               "height": 0.91,
-  //               "type": "low"
-  //             }
-  //           ]
-  //         },
-  //         {
-  //           "dateTime": "2024-02-02 00:00:00",
-  //           "entries": [
-  //             {
-  //               "dateTime": "2024-02-02 05:32:00",
-  //               "height": 3.14,
-  //               "type": "high"
-  //             },
-  //             {
-  //               "dateTime": "2024-02-02 11:56:00",
-  //               "height": 0.86,
-  //               "type": "low"
-  //             },
-  //             {
-  //               "dateTime": "2024-02-02 17:58:00",
-  //               "height": 2.98,
-  //               "type": "high"
-  //             }
-  //           ]
-  //         }
-  //       ],
-  //       "units": {
-  //         "height": "m"
-  //       },
-  //       "issueDateTime": "2023-11-05 11:06:30",
-  //       "carousel": {
-  //         "size": 2922,
-  //         "start": 2588
-  //       }
-  //     }
-  //   }
-  // }
+    // Get Willy Weather API Key
+    if( $waf_willy_weather = get_option('waf_willy_weather') ) {
+      if( !empty( $waf_willy_weather['api_key'] ) ) {
+        // Get all buoys with location set
+        $buoys = $wpdb->get_results( "SELECT `id`, `willy_weather_location_id` 
+          FROM `wp_waf_buoys`  
+          WHERE `willy_weather_location_id` > 0");
 
-	// INSERT INTO `wp_waf_wave_tides`
-	// ( buoy_id, height, timestamp )
-	// VALUES
-	// (31325, 3.12, 1706763579), (31325, 0.93, 1706786340), (31325, 2.97, 1706807760), (31325, 0.91, 1706830140),
-	// (31325, 3.14, 1706851920), (31325, 0.86, 1706874960), (31325, 2.98, 1706896680)
+        foreach( $buoys as $buoy ) {
+          // Fetch
+          $curl = curl_init();
+          $start_date = date('Y-m-d');
+
+          curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.willyweather.com.au/v2/{$waf_willy_weather['api_key']}/locations/{$buoy->willy_weather_location_id}/weather.json",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+              'Content-Type: application/json',
+              'x-payload: {"forecasts": ["tides"], "days": 7, "startDate": "' . $start_date . '"}'
+            ),
+          ));
+
+          $response = curl_exec($curl);
+
+          curl_close($curl);
+
+          // Process the tide data
+          $tide_data = json_decode( $response );
+          // print_r( $tide_data );
+
+          $time_zone = $tide_data->location->timeZone; // Use to adjust times to GMT
+          $tides = [];
+          foreach($tide_data->forecasts->tides->days as $day) {
+            foreach($day->entries as $entry) {
+              // $time = strtotime($entry->dateTime);
+              $time = new DateTime($entry->dateTime, new DateTimeZone($time_zone));
+              $tides[$time->format('U')] = $entry->height;
+            }
+          }
+
+          // Delete existing
+          $timestamps = implode(",", array_keys( $tides ));
+          $wpdb->query("DELETE FROM {$wpdb->prefix}waf_wave_tides WHERE `buoy_id` = $buoy->id AND `timestamp` IN ($timestamps)");
+          
+          foreach($tides as $timestamp => $height) {
+            $wpdb->insert(
+              $wpdb->prefix . "waf_wave_tides",
+              array(
+                'buoy_id' => $buoy->id,
+                'height' => $height,
+                'timestamp' => $timestamp
+              ),
+              array(
+                '%d', '%f', '%s'
+              )
+            );
+          }
+
+          print 1;
+        }
+      }
+    }
+  }

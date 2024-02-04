@@ -18,3 +18,5 @@
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/spotter.php' );
 	// Local CSV Wave Data
 	require_once( WAF__PLUGIN_DIR . 'includes/fetch/local.php' );
+	// Willy Weather
+	require_once( WAF__PLUGIN_DIR . 'includes/fetch/willy-weather.php');
