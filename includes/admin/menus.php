@@ -222,6 +222,13 @@
 					<?php waf_settings_table( 'waf_local_csv', $local_csv_fields, $local_csv ); ?>
 
 					<h2>WillyWeather API</h2>
+					<p>Use this method to grab tide records from Willy Weather</p>
+					<ol>
+						<li>
+							<code>/usr/local/bin/php <?php print WAF__PLUGIN_DIR; ?>includes/ajax-cli.php "action=waf_fetch_tides"</code><br>
+							0&nbsp;&nbsp;0,12&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;*&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<em>Update device list in the DB</em>
+						</li>
+					</ol>
 					<?php waf_settings_table( 'waf_willy_weather', $willy_weather_fields, $willy_weather ); ?>
 
 					<?php submit_button(); ?>
