@@ -13,11 +13,21 @@
 
 		add_submenu_page( 
 			'waf', 
-			'Refresh', 
-			'Refresh', 
+			'Refresh Data', 
+			'Refresh Data', 
 			'manage_options', 
 			'refresh', 
 			'waf_options_page_refresh_html', 
+			2 
+		);
+
+		add_submenu_page( 
+			'waf', 
+			'Refresh Images', 
+			'Refresh Images', 
+			'manage_options', 
+			'refresh-images', 
+			'waf_options_page_refresh_images_html', 
 			2 
 		);
 
@@ -379,6 +389,28 @@
 						</tbody>
 					</table>
 					<?php submit_button( 'Refresh' ); ?>
+				</form>
+			</div>
+		<?php
+	}
+
+	function waf_options_page_refresh_images_html() {
+		if (!current_user_can('manage_options')) {
+			return;
+		}
+
+		// Messages
+		settings_errors( 'waf-buoy-options-refresh-images' );
+		?>
+			<div class="wrap">
+				<h1><?= esc_html(get_admin_page_title()); ?></h1>
+				<p><em>Triggering this will clear all buoy cached buoy images</em></p>
+				<form method="post" action="options.php"> 
+					<?php
+						settings_fields( 'waf-buoy-options-refresh-images' ); 
+						do_settings_sections( 'waf-buoy-options-refresh-images' );
+					?>
+					<?php submit_button( 'Refresh Images' ); ?>
 				</form>
 			</div>
 		<?php

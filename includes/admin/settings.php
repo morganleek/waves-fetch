@@ -42,6 +42,14 @@
 		);
 
 		register_setting(
+			'waf-buoy-options-refresh-images',
+			'waf_refresh_images',
+			array(
+				'sanitize_callback' => 'waf_sanitize_options_refresh_images'
+			)
+		);
+
+		register_setting(
 			'waf-buoy-options-migrate',
 			'waf_migrate',
 			array(
@@ -70,6 +78,30 @@
 			add_settings_error( 'waf-buoy-options-refresh', 'waf-success', __( 'Processing buoy #' . $id, 'wporg' ), 'success' );
 		} 
 		
+		return $option;
+	}
+
+	function waf_sanitize_options_refresh_images( $option ) {
+		global $wpdb;
+		// Get all buoy images 
+		$all = $wpdb->get_results( "SELECT `image` FROM `{$wpdb->prefix}waf_buoys`" );
+
+		$paths = [];
+		foreach( $all as $row ) {
+			// Get full path to file
+			$path = WAF__PLUGIN_DIR . 'cache/' . $row->image;
+			// Check exisitance
+			if( is_file( $path ) ) {
+				// Delete
+				unlink( $path ); 
+				// List to be returned to the user
+				$paths[] = $path; 
+			}
+		}
+
+		// Success Message
+		add_settings_error( 'waf-buoy-options-refresh-images', 'waf-success', "Deleted - " . join(", ", $paths), 'success' );
+
 		return $option;
 	}
 

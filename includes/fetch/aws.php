@@ -58,8 +58,9 @@
 				return $body;
 			}
 			catch ( S3Exception $e ) {
-				print "There was an error reading the file '" . $object . "'\n";
-				print $e->getAwsErrorType();
+				// Surpress error
+				// print "There was an error reading the file '" . $object . "'\n";
+				// print $e->getAwsErrorType();
 			}
 		}
 	}
