@@ -5,7 +5,7 @@
 	use League\Csv\Writer;
 
 	// List Buoys
-	function waf_rest_list_buoys( $ids = [] ) {
+	function waf_rest_list_buoys( $ids = [], $drifting = false ) {
 		global $wpdb;
 
 		// Append labels if narrowed
@@ -16,9 +16,10 @@
 
 		if( $cached === false ) {
 			// All buoys
-			$query = "SELECT *, UNIX_TIMESTAMP() AS `now` 
-			FROM {$wpdb->prefix}waf_buoys
-			WHERE `is_enabled` != 0";
+			$query = "SELECT *, UNIX_TIMESTAMP() AS `now` FROM {$wpdb->prefix}waf_buoys WHERE `is_enabled` != 0";
+			if( $drifting ) {
+				$query .= " AND `drifting` = 1 ";
+			}
 			// Specific buoy
 			if( sizeof( $ids ) > 0 ) {
 				$query .= " AND `id` IN (" . implode(",", $ids) . ")";
@@ -34,17 +35,33 @@
 			);
 
 			// Process Images that may be hosted externally
-			foreach($buoys as $buoy) {
+			foreach($buoys as $k => $buoy) {
+				// Buoy image
 				$buoy->image = waf_get_buoy_image_path( $buoy->id );
+				// Drifting data if wanted
+				if( $drifting ) {
+					$drift_data = $wpdb->get_results(
+						$wpdb->prepare( 
+							"SELECT `data_points`, MIN(timestamp) AS min_timestamp FROM `{$wpdb->prefix}waf_wave_data`
+							WHERE `buoy_id` = %d
+							GROUP BY DATE(FROM_UNIXTIME(timestamp)), HOUR(FROM_UNIXTIME(timestamp))
+							ORDER BY `timestamp` DESC
+							LIMIT %d", $buoy->id, 480
+						), ARRAY_A
+					);
+					if( $wpdb->num_rows > 0 ) {
+						$buoys[$k]->data = $drift_data;
+					}
+				}
 			}
 
 			// Cache results for 5 minutes
 			wp_cache_set( $cached_label, $buoys, 'waf_rest', 300 );
 			// Return JSON
-			return json_encode( $buoys );
+			return $buoys;
 		}
 		else { // Cached results
-			return json_encode( $cached );
+			return $cached;
 		}
 	}
 	
@@ -54,10 +71,11 @@
 			$ids[] = intval( $_REQUEST['id'] ); 
 		}
 		if( isset( $_REQUEST['restrict'] ) ) {
-			// $extra = explode( ",", $_REQUEST['restrict']);
 			$ids = array_merge( $ids, explode( ",", $_REQUEST['restrict'] ) );
 		}
-		print waf_rest_list_buoys( $ids );
+		$drifting = isset( $_REQUEST['drifting'] );
+
+		wp_send_json( waf_rest_list_buoys( $ids, $drifting ) );
 		wp_die();
 	}
 
