@@ -92,12 +92,13 @@
 			'end' => 0,
 			'table' => $wpdb->prefix . 'waf_wave_data',
 			'json' => true,
-			'order' => 'DESC'
+			'order' => 'DESC',
+			'range' => '-5 days'
 		);
 		$_args = array_merge( $defaults, $args );
 
-		$default_range = "-5 days";
-		$default_data_points = 48;
+		// $default_range = "-5 days";
+		// $default_data_points = 48;
 		$has_results = false;
 
 		// Fetch in timeframe
@@ -112,7 +113,7 @@
 			// // Grab last 2 days results
 			$query = $wpdb->prepare( 
 				$query . " AND `timestamp` > %d",
-				date( 'U', strtotime( $default_range ) )
+				date( 'U', strtotime( $_args['range'] ) )
 			); 
 		}
 		else {
@@ -158,7 +159,7 @@
 						WHERE `buoy_id` = %d
 						AND `timestamp` > %d
 						ORDER BY `timestamp` " . $_args['order'],
-						$_args['id'], date( 'U', strtotime( $default_range, $recent ) )
+						$_args['id'], date( 'U', strtotime( $_args['range'], $recent ) )
 					),
 					'ARRAY_A'
 				);
@@ -208,12 +209,18 @@
 			$end = intval( $_REQUEST['end'] );
 		}
 
+		// Range 
+		$range = '5';
+		if( isset( $_REQUEST['range'] ) ) {
+			$range = intval( $_REQUEST['range'] );
+		}
+
 		// Check for cached data
 		$datapoints = wp_cache_get( "list_buoy_datapoints_{$id}_{$start}_{$end}_waf_wave_data", 'waf_rest' );
 		
 		if( $datapoints === false ) {
 			// Fetch fresh
-			$datapoints = waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'order' => 'DESC' ) );
+			$datapoints = waf_rest_list_buoy_datapoints( array( 'id' => $id, 'start' => $start, 'end' => $end, 'table' => $wpdb->prefix . 'waf_wave_data', 'order' => 'DESC', 'range' => '-' . $range . ' days' ) );
 			// Cache results for 5 minutes
 			wp_cache_set( "list_buoy_datapoints_{$id}_{$start}_{$end}_waf_wave_data", $datapoints, 'waf_rest', 300 );
 		}
