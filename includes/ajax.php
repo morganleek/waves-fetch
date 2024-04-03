@@ -34,9 +34,15 @@
 				) 
 			);
 
-			// Process Images that may be hosted externally
+			// Display options
+			$options = get_option('wad_options');
 			foreach($buoys as $k => $buoy) {
-				// Buoy image
+				// Check for global 'download requires details' override
+				if( isset( $options['buoy_display_user_info_required'] ) && $options['buoy_display_user_info_required'] === "1" ) {
+					$buoy->download_requires_details = "1";
+				}
+				
+				// Process Images that may be hosted externally
 				$buoy->image = waf_get_buoy_image_path( $buoy->id );
 				// Drifting data if wanted
 				if( $drifting ) {
