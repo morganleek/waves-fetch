@@ -45,10 +45,10 @@
 				
 				$form_data = json_decode( stripslashes( $_REQUEST['form_data'] ) );
 				foreach( $form_data as $key => $data ) {
-					$message .= $key . ': ' . $data . "\n";
+					$message .= ucfirst( $key ) . ': ' . $data . "\n";
 				}
 
-				wp_mail( $options['buoy_display_user_info_email_recipient'], 'SA Waves Download User Info', $message );
+				wp_mail( $options['buoy_display_user_info_email_recipient'], 'Waves Download User Info', $message );
 			}
 		}
 		
