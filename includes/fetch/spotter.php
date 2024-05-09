@@ -188,7 +188,12 @@
 		$limit = 100;
 
 		// Fetch all buoys requiring an update
-		$buoys = $wpdb->get_results( "SELECT * FROM `{$wpdb->prefix}waf_buoys` WHERE `requires_update` = 1 AND `type` = 1" );
+		$buoys = $wpdb->get_results( 
+			"SELECT * FROM `{$wpdb->prefix}waf_buoys` 
+			WHERE `requires_update` = 1 
+			AND `type` = 1
+			AND `api_key` != ''" 
+		);
 
 		// Debug
 		// error_log( "Buoys requiring updates found " . $wpdb->num_rows, 0 );
@@ -237,7 +242,7 @@
 				// CURL Latest data
 				$response = waf_spotter_curl_request( array( 
 					"url" => "https://api.sofarocean.com/api/wave-data?" . implode( '&', $params ),
-					"token" => $waf_spotter['key']
+					"token" => $buoy->api_key
 				) );
 
 				// Debug 
