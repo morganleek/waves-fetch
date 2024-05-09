@@ -143,7 +143,8 @@
 							array( 
 								'label' => 'Spotter API Key',
 								'name' => 'key',
-								'type' => 'text'
+								'type' => 'text',
+								'description' => 'Comma seperated for multiple Spotter API keys'
 							),
 							array(
 								'label' => 'Manage Buoys Locally',

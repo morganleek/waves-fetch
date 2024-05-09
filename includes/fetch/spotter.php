@@ -15,76 +15,106 @@
 			return 0;
 		}
 
-		// CURL All Devices
-		$response = waf_spotter_curl_request( array( 
-			"url" => "https://api.sofarocean.com/api/devices",
-			"token" => $waf_spotter['key']
-		) );
 
-		// Testing
-		// $response = '{"message":"4 devices","data":{"devices":[{"name":"TestBuoy","spotterId":"SPOT-0001"},{"name":"SPOT0867-KI","spotterId":"SPOT-0867"},{"name":"SPOT0940-Semaphore","spotterId":"SPOT-0940"},{"name":"SPOT0943-Brighton","spotterId":"SPOT-0943"},{"name":"","spotterId":"SPOT-1019"}]}}';
-		
-		if( $response ) {	
-			$json_res = json_decode( $response );
-	
-			// Result buoys
-			$buoys = [];
-	
-			// Regex Spotter IDs for DB ID
-			foreach( $json_res->data->devices as $device ) {
-				// Data
-				$name = $device->name;
-				$spotterId = $device->spotterId;
-				// Regex the ID
-				$match = [];
-				preg_match( '/(?:SPOT-)([0-9]*)/', $spotterId, $match ); // Capture only the number
-				if( sizeof( $match ) == 2 ) {
-					// Push ID as int to array
-					$buoys[ intval( $match[1] ) ] = array(
-						'spotterId' => $spotterId,
-						'name' => !empty( $name ) ? $name : '...'
-					);
+		$keys = $waf_spotter['key'];
+		if( !empty( $keys ) ) {
+			// Explode keys
+			$keys = str_replace(" ", "", $keys);
+			$keys_array = explode(",", $keys);
+			if( count( $keys_array ) > 0 ) {
+				// Loop through keys and fetch buoys
+				foreach( $keys_array as $key ) {
+					// CURL All Devices
+					$response = waf_spotter_curl_request( array( 
+						"url" => "https://api.sofarocean.com/api/devices",
+						"token" => $key
+					) );
+
+					// Testing
+					// $response = '{"message":"4 devices","data":{"devices":[{"name":"TestBuoy","spotterId":"SPOT-0001"},{"name":"SPOT0867-KI","spotterId":"SPOT-0867"},{"name":"SPOT0940-Semaphore","spotterId":"SPOT-0940"},{"name":"SPOT0943-Brighton","spotterId":"SPOT-0943"},{"name":"","spotterId":"SPOT-1019"}]}}';
+
+					if( $response ) {	
+						$json_res = json_decode( $response );
+
+						// Result buoys
+						$buoys = [];
+
+						// Regex Spotter IDs for DB ID
+						foreach( $json_res->data->devices as $device ) {
+							// Data
+							$name = $device->name;
+							$spotterId = $device->spotterId;
+							// Regex the ID
+							$match = [];
+							preg_match( '/(?:SPOT-)([0-9]*)/', $spotterId, $match ); // Capture only the number
+							if( sizeof( $match ) == 2 ) {
+								// Push ID as int to array
+								$buoys[ intval( $match[1] ) ] = array(
+									'spotterId' => $spotterId,
+									'name' => !empty( $name ) ? $name : '...'
+								);
+							}
+						}
+
+						if( !empty( $buoys ) ) {
+							// Check which exist 
+							$exist = $wpdb->get_col(
+								$wpdb->prepare(
+									"SELECT `id` FROM `{$wpdb->prefix}waf_buoys`
+									WHERE `id` IN (" . implode(",", array_keys( $buoys ) ) . ")"
+								)
+							);
+
+							// Flip Keys and Values
+							$exist = array_flip( $exist );
+							
+							// Difference with Buoys
+							$diff = array_diff_key( $buoys, $exist );
+
+							// Add new buoys to database
+							foreach( $diff as $id => $buoy ) {
+								$wpdb->insert(
+									$wpdb->prefix . "waf_buoys",
+									array(
+										'id' => $id,
+										'label' => $buoy['spotterId'],
+										'is_enabled' => 1,
+										'start_date' => 0,
+										'end_date' => 0,
+										'first_update' => 0,
+										'last_update' => 0,
+										'menu_order' => 0,
+										'start_after_id' => 0,
+										'web_display_name' => $buoy['name'],
+										'description' => "Spotter Buoy",
+										'type' => 1,
+										'api_key' => $key
+									),
+									array( '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%s' )
+								);
+							}
+
+							// Update existing buoys to include API key
+							foreach( $exist as $id => $buoy ) {
+								$wpdb->update( 
+									$wpdb->prefix . "waf_buoys",
+									array( 'api_key' => $key ),
+									array( 'id' => $id ),
+									array( '%s' )
+								);
+							}
+						}
+					}
 				}
 			}
-	
-			if( !empty( $buoys ) ) {
-				// Check which exist 
-				$exist = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT `id` FROM `{$wpdb->prefix}waf_buoys`
-						WHERE `id` IN (" . implode(",", array_keys( $buoys ) ) . ")"
-					)
-				);
-	
-				// Flip Keys and Values
-				$exist = array_flip( $exist );
-				
-				// Difference with Buoys
-				$diff = array_diff_key( $buoys, $exist );
-	
-				// Add to Database
-				foreach( $diff as $key => $buoy ) {
-					
-					$wpdb->insert(
-						$wpdb->prefix . "waf_buoys",
-						array(
-							'id' => $key,
-							'label' => $buoy['spotterId'],
-							'is_enabled' => 1,
-							'start_date' => 0,
-							'end_date' => 0,
-							'first_update' => 0,
-							'last_update' => 0,
-							'menu_order' => 0,
-							'start_after_id' => 0,
-							'web_display_name' => $buoy['name'],
-							'description' => "Spotter Buoy",
-							'type' => 1
-						),
-						array( '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%d' )
-					);
-				}
+			else {
+				print 'Spotter keys are empty';
+				die();
 			}
+		}
+		else {
+			print 'No spotter keys set';
+			die();
 		}
 	}
 

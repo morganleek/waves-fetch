@@ -40,6 +40,7 @@
 			download_enabled MEDIUMINT(9) DEFAULT 1 NOT NULL,
 			download_requires_details MEDIUMINT(9) DEFAULT 0 NOT NULL,
 			willy_weather_location_id MEDIUMINT(9) NOT NULL,
+			api_key VARCHAR(255) NOT NULL,
 			PRIMARY KEY  (id)
 		) $charset_collate;";
 		dbDelta( $sql );
