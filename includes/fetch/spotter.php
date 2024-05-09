@@ -133,7 +133,8 @@
 		$buoys = $wpdb->get_results( 
 			"SELECT * FROM
 			`{$wpdb->prefix}waf_buoys`
-			WHERE `type` = 1" 
+			WHERE `type` = 1
+			AND `api_key` != ''" 
 		);
 		// Check most recent for each
 		if( $buoys ) {
@@ -144,7 +145,7 @@
 				// CURL Latest data
 				$response = waf_spotter_curl_request( array( 
 					"url" => "https://api.sofarocean.com/api/latest-data?spotterId=" . $spotterId,
-					"token" => $waf_spotter['key']
+					"token" => $buoy->api_key
 				) );
 				
 				// Testing
