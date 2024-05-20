@@ -46,7 +46,7 @@
 				// Process Images that may be hosted externally
 				$buoy->image = waf_get_buoy_image_path( $buoy->id );
 				// Drifting data if wanted
-				if( $drifting ) {
+				if( $buoy->drifting ) {
 					$drift_data = $wpdb->get_results(
 						$wpdb->prepare( 
 							"SELECT `data_points`, MIN(timestamp) AS min_timestamp FROM `{$wpdb->prefix}waf_wave_data`
