@@ -218,12 +218,15 @@
 				);
 
 				// Check for null values for new buoys
+				// Specifying future time can get it stuck if there is a long outage for a buoy.
+				// End date and can now() as partitioned data is limited to a 100 responses which will
+				// also get the buoys up to date
 				if( $last_update_timestamp == null ) {
 					$last_update_timestamp = 0;
 					$last_update_timestamp_end = time();
 				}
 				else {
-					$last_update_timestamp_end = strtotime( "+5 days", $last_update_timestamp );
+					$last_update_timestamp_end = time(); // strtotime( "+5 days", $last_update_timestamp );
 				}
 				
 				$params = array(
