@@ -260,7 +260,10 @@
 					'partitionData' => $json_res->data->partitionData
 				);
 
-				$final_update = 0;
+				// Set final update to previous last update
+				// This was set to '0' thinking it'd always be replaced but wouldn't
+				// when there were no updates avaiable.
+				$final_update = $last_update_timestamp;
 
 				// Time
 
