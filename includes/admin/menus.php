@@ -33,11 +33,21 @@
 
 		add_submenu_page( 
 			'waf', 
-			'Migrate', 
-			'Migrate', 
+			'Migrate Data', 
+			'Migrate Data', 
 			'manage_options', 
 			'migrate', 
 			'waf_options_page_migrate_html', 
+			2 
+		);
+
+		add_submenu_page( 
+			'waf', 
+			'Delete Data', 
+			'Delete Data', 
+			'manage_options', 
+			'delete', 
+			'waf_options_page_delete_html', 
 			2 
 		);
 
@@ -282,6 +292,63 @@
 		}
 
 		return $buoys_select;
+	}
+
+	// Delete Buoy Data
+	function waf_options_page_delete_html() {
+		if (!current_user_can('manage_options')) {
+			return;
+		}
+
+		// Defaults
+		$waf_start_date = "";
+		$waf_end_date = "";
+		$waf_delete_from = 0;
+
+		// Messages
+		settings_errors( 'waf-buoy-options-delete' );
+
+		$returned_data = get_settings_errors( 'waf-buoy-options-delete' );
+
+		foreach( $returned_data as $data ) {
+			if( $data['code'] == 'waf-delete-test' ) {
+				$waf_delete_from = $data['message']['waf_delete_from'];
+				$waf_start_date = $data['message']['waf_start_date'];
+				$waf_end_date = $data['message']['waf_end_date'];
+			}
+		}
+
+		?>
+			<div class="wrap">
+				<h1><?= esc_html(get_admin_page_title()); ?></h1>
+				<form method="post" action="options.php"> 
+					<?php
+						settings_fields( 'waf-buoy-options-delete' ); 
+						do_settings_sections( 'waf-buoy-options-delete' );
+					?>
+					<table class="form-table">
+						<tbody>
+							<tr>
+								<th scope="row"><label for="">Buoy</label></th>
+								<td><select name="waf_delete[waf_delete_from]"><?php print waf_buoys_select_list( $waf_delete_from ); ?></select></td>
+							</tr>
+							<tr>
+								<th scope="row"><label for="">Start Date</label></th>
+								<td><input name="waf_delete[waf_start_date]" id="waf_start_date" type="datetime-local" value="<?php print $waf_start_date; ?>"></td>
+							</tr>
+							<tr>
+								<th scope="row"><label for="">End Date</label></th>
+								<td><input name="waf_delete[waf_end_date]" id="waf_end_date" type="datetime-local" value="<?php print $waf_end_date; ?>"></td>
+							</tr>
+						</tbody>
+					</table>
+					<p class="sumit">
+						<?php submit_button( 'Test', 'secondary', 'test', false ); ?>
+						<?php submit_button( 'Delete', 'primary', 'submit', false ); ?>
+					</p>
+				</form>
+			</div>
+		<?php
 	}
 
 	// Migrate Buoy Data

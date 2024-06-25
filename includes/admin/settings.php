@@ -56,6 +56,14 @@
 				'sanitize_callback' => 'waf_sanitize_options_migrate'
 			)
 		);
+
+		register_setting(
+			'waf-buoy-options-delete',
+			'waf_delete',
+			array(
+				'sanitize_callback' => 'waf_sanitize_options_delete'
+			)
+		);
 	}
 
 	function waf_sanitize_options( $option ) {
@@ -102,6 +110,74 @@
 		// Success Message
 		add_settings_error( 'waf-buoy-options-refresh-images', 'waf-success', "Deleted - " . join(", ", $paths), 'success' );
 
+		return $option;
+	}
+
+	function waf_sanitize_options_delete( $option ) {
+		if( 
+			empty( $option['waf_delete_from'] ) || 
+			empty( $option['waf_start_date'] ) || 
+			empty( $option['waf_end_date'] ) ) {
+				// Missing data
+				add_settings_error( 'waf-buoy-options-delete', 'waf-success', __( 'Missing required fields', 'wporg' ), 'error' );
+				return $option;
+		}
+
+		// Extract Option Values
+		extract( $option );
+
+		// Convert to datetime
+		$waf_start_datetime = strtotime( $waf_start_date );
+		$waf_end_datetime = strtotime( $waf_end_date );
+		
+		// Check Date
+		if( $waf_end_datetime < $waf_start_datetime ) {
+			// End before the start
+			add_settings_error( 'waf-buoy-options-delete', 'waf-success', __( 'Your end date is before your start date', 'wporg' ), 'error' );
+			return $option;
+		}
+		
+		global $wpdb;
+
+		// Get number of effected items
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) 
+				FROM `{$wpdb->prefix}waf_wave_data` 
+				WHERE `buoy_id` = %d 
+				AND `timestamp` >= %d 
+				AND `timestamp` <= %d",
+				$waf_delete_from,
+				$waf_start_datetime,
+				$waf_end_datetime
+			)
+		);
+		
+		// Do it as a test
+		if( isset( $_REQUEST['test'] ) ) {
+			add_settings_error( 'waf-buoy-options-delete', 'waf-success', __( 'This will effect ' . $count . ' items', 'wporg' ), 'success' );
+			add_settings_error( 'waf-buoy-options-delete', 'waf-delete-test', array(
+				'waf_delete_from' => $waf_delete_from,
+				'waf_start_date' => $waf_start_date,
+				'waf_end_date' => $waf_end_date
+			), 'data' );
+		}
+		// Do it for real
+		else {
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->prefix}waf_wave_data
+					WHERE `buoy_id` = %d
+					AND `timestamp` >= %d
+					AND `timestamp` <= %d",
+					$waf_delete_from,
+					$waf_start_datetime,
+					$waf_end_datetime
+				)
+			);
+
+			add_settings_error( 'waf-buoy-options-delete', 'waf-success', __( $count . ' data points updated', 'wporg' ), 'success' );
+		}
 		return $option;
 	}
 
