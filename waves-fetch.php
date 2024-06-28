@@ -35,3 +35,4 @@
 
 	// Return 
 	require_once( WAF__PLUGIN_DIR . 'includes/ajax.php' );
+	require_once( WAF__PLUGIN_DIR . 'includes/rest.php' );
