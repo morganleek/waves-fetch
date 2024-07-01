@@ -64,7 +64,7 @@
 			}
 
 			// Cache results for 5 minutes
-			wp_cache_set( $cached_label, $buoys, 'waf_rest', 300 );
+			wp_cache_set( $cached_label, $buoys, 'waf_rest', 3600 );
 			// Return JSON
 			return $buoys;
 		}
