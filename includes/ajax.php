@@ -46,19 +46,23 @@
 				// Process Images that may be hosted externally
 				$buoy->image = waf_get_buoy_image_path( $buoy->id );
 				// Drifting data if wanted
-				if( $buoy->drifting ) {
+				if( intval( $buoy->drifting ) === 1 ) {
 					$drift_data = $wpdb->get_results(
 						$wpdb->prepare( 
-							"SELECT `data_points`, MIN(timestamp) AS min_timestamp 
+							"SELECT `data_points` 
 							FROM `{$wpdb->prefix}waf_wave_data`
 							WHERE `buoy_id` = %d
-							GROUP BY DATE(FROM_UNIXTIME(timestamp))
 							ORDER BY `timestamp` DESC
-							LIMIT %d", $buoy->id, 20
+							LIMIT %d", $buoy->id, 200
 						), ARRAY_A
 					);
 					if( $wpdb->num_rows > 0 ) {
-						$buoys[$k]->data = $drift_data;
+						// Thin out results 
+						$buoys[$k]->data = array_values( 
+							array_filter( $drift_data, function( $v, $k ) {
+								return $k % 10 === 0;
+							}, ARRAY_FILTER_USE_BOTH ) 
+						);
 					}
 				}
 			}
